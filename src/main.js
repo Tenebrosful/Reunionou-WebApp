@@ -4,8 +4,8 @@ import { createRouter,createWebHistory} from 'vue-router'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap/dist/js/bootstrap.min.js";
 import "bootstrap-vue/dist/bootstrap-vue.css"
-
 
 import HomeComponent from './components/HomeComponent.vue'
 
