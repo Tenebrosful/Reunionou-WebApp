@@ -1,5 +1,5 @@
 <template>
-  <table class="table table-striped">
+  <table class="table table-striped" style="max-height:300px; overflow:auto;">
       <tbody>
           <tr>
               <td>Jean Didier</td>

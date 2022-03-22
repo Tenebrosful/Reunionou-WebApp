@@ -71,4 +71,11 @@ export default {
 .modal-dialog{
   max-width:70vw;
 }
+
+@media screen  and (max-width: 638px){
+  .modal-dialog[data-v-5567ea9e]{
+    max-width: 100vw;
+  }
+
+}
 </style>

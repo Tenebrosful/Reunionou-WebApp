@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-content" style="width:80vw; max-height:800px;overflow:hidden;">
+  <div id="modal-content" class="modal-content" style="max-height:800px;overflow:hidden;">
     <div class="modal-header">
       <button
         type="button"
@@ -9,11 +9,11 @@
       ></button>
     </div>
     <div class="modal-body">
-      <h4 class="modal-title text-danger mb-2" id="exampleModalLabel">
+      <h3 class="modal-title text-danger mb-2" id="exampleModalLabel" style="filter: brightness(1.75);">
         {{ title }}
-      </h4>
-      <p class="fs-6">adresse: {{ address }}</p>
-      <p>{{ descr }}</p>
+      </h3>
+      <p class="fs-6 text-white">adresse: {{ address }}</p>
+      <p class="text-white">{{ descr }}</p>
       <div class="d-flex justify-content-center">
         <button type="button" class="btn btn-success me-5">Je viens</button>
         <button type="button" class="btn btn-danger">Je ne viens pas</button>
@@ -31,6 +31,7 @@
             aria-selected="true"
           >
             Personnes
+            <i class="las la-user la-lg"></i>
           </button>
         </li>
         <li class="nav-item" role="comments">
@@ -45,6 +46,7 @@
             aria-selected="false"
           >
             Commentaire
+            <i class="las la-comments la-lg"></i>
           </button>
         </li>
         <li class="nav-item" role="info">
@@ -59,6 +61,7 @@
             aria-selected="false"
           >
             info
+            <i class="las la-question-circle la-lg"></i>
           </button>
         </li>
       </ul>
@@ -108,5 +111,26 @@ export default {
   data() {
     return {};
   },
+  mounted() {
+    document.getElementById('pills-comments').scrollTo(0, 1000)
+  }
 };
 </script>
+
+<style scoped>
+
+  #modal-content, .modal-content{
+    width: 80vw; 
+  }
+
+  .nav-pills .nav-link{
+    width: 100%;
+  }
+
+@media screen  and (max-width: 638px){
+
+  #modal-content, .modal-content{
+    width: 100vw;
+  }
+}
+</style>

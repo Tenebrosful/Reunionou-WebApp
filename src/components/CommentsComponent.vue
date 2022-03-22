@@ -1,11 +1,12 @@
 <template>
   <div
     class="col-sm-12 col-xs-12 chat"
-    style="overflow-x:hidden; outline: none; height:300px;"
+    id="chat"
+    style="overflow-x:hidden; outline: none; max-height:300px;"
     tabindex="5001"
   >
     <div class="col-inside-lg decor-default">
-      <div class="chat-body">
+      <div class="chat-body" id="chat-body">
         <div class="answer left">
           <div class="avatar">
             <img
@@ -151,7 +152,7 @@
           <div class="time">5 min ago</div>
         </div>
         <div class="answer-add">
-          <input placeholder="Write a message" />
+          <input type="text" class="form-control" placeholder="Write a message" />
           <span class="answer-btn answer-btn-1"></span>
           <span class="answer-btn answer-btn-2"></span>
         </div>
@@ -166,11 +167,17 @@ export default {
         return {
 
         }
-    }
+    },
+    mounted() {
+    document.getElementById('chat').scrollTop = document.getElementById('chat-body').offsetHeight
+  }
 };
 </script>
 
 <style scoped>
+.form-control, input:focus{
+  border-color: greenyellow;
+}
 .row.row-broken {
     padding-bottom: 0;
 }
@@ -180,9 +187,6 @@ export default {
 .chat {
     height: calc(100vh - 180px);
     overflow: scroll;
-}
-.decor-default {
-    background-color: #ffffff;
 }
 .chat-users h6 {
     font-size: 20px;
@@ -289,6 +293,11 @@ export default {
 .chat-body .answer .avatar .status {
     bottom: 0;
 }
+
+.name{
+  color: #ffffff;
+}
+
 .chat-body .answer.left .text {
     background: #ebebeb;
     color: #333333;
@@ -315,7 +324,7 @@ export default {
 }
 .chat-body .answer.left .time {
     padding-left: 12px;
-    color: #333333;
+    color: #b8b8b8;
 }
 .chat-body .answer .time {
     font-size: 16px;
@@ -348,7 +357,7 @@ export default {
 }
 .chat-body .answer.right .time {
     padding-right: 12px;
-    color: #333333;
+    color: #b8b8b8;
 }
 
 /**************ADD FORM ***************/
@@ -409,4 +418,5 @@ export default {
     -webkit-appearance: none;
     border-radius: 0;
 }
+
 </style>

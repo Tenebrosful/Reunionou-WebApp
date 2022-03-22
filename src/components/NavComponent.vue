@@ -1,15 +1,99 @@
 <template>
-  <div style="position: absolute; z-index: 1; top: 0px; right: 0px">
+  <div
+    class="myNav"
+    style="position: absolute; z-index: 1; top: 0px; right: 0px"
+  >
     <div class="d-flex justify-content-end">
       <button class="me-2 mt-2" type="button" @click="navbarEvent()">
         <img src="../assets/menu.png" style="width: 40px" alt="" />
       </button>
     </div>
-    <div id="nav" class="navClose bg-white mt-2">
-      <ul>
-        <li>test</li>
-        <li>test</li>
+    <div
+      id="nav"
+      class="navClose rounded mt-2 p-2"
+      style="background-color: #424242"
+    >
+      <router-link
+        to="creationEvenement"
+        type="button"
+        class="btn btn-secondary mt-2"
+        >Créer un évènement</router-link
+      >
+
+      <ul
+        class="nav nav-pills nav-justified flex-column mb-3 mt-5 col-12"
+        id="pills-tab"
+        role="tablist"
+      >
+        <li
+          class="nav-item col-12"
+          style="margin: 0 auto; margint-bottom: 0px"
+          role="events"
+        >
+          <button
+            class="nav-link active"
+            id="pills-events-tab"
+            style="width: 100%"
+            data-bs-toggle="pill"
+            data-bs-target="#pills-events"
+            type="button"
+            role="tab"
+            aria-controls="pills-events"
+            aria-selected="true"
+          >
+            Liste des évènements
+          </button>
+        </li>
+        <li
+          class="nav-item col-12"
+          style="margin: 0 auto; height: 2%"
+          role="myEvents"
+        >
+          <button
+            class="nav-link"
+            id="pills-myEvents-tab"
+            style="width: 100%"
+            data-bs-toggle="pill"
+            data-bs-target="#pills-myEvents"
+            type="button"
+            role="tab"
+            aria-controls="pills-myEvents"
+            aria-selected="false"
+          >
+            Liste de mes évènements
+          </button>
+        </li>
       </ul>
+      <div
+        class="tab-content text-white"
+        id="pills-tabContent"
+        style="height: 100%"
+      >
+        <div
+          class="tab-pane fade show active"
+          id="pills-events"
+          role="tabpanel"
+          aria-labelledby="pills-events-tab"
+        >
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item pointer">Anniversaire de Clara</li>
+            <li class="list-group-item pointer">Mariage de Stephane</li>
+            <li class="list-group-item pointer">Soirée 80s</li>
+          </ul>
+        </div>
+        <div
+          class="tab-pane fade"
+          id="pills-myEvents"
+          role="tabpanel"
+          aria-labelledby="pills-myEvents-tab"
+        >
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item pointer">Anniversaire de moi</li>
+            <li class="list-group-item pointer">Rendez-vous Bière</li>
+            <li class="list-group-item pointer">Repas de famille</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -42,11 +126,35 @@ export default {
 .navOpen {
   opacity: 1;
   height: auto;
-  transition: opacity .5s ease-in;
+  transition: opacity 0.5s ease-in;
+  margin-right: 0.5em;
 }
 
 .navClose {
   opacity: 0;
-  transition: opacity .5s ease-out;
+  transition: opacity 0.5s ease-out;
+  margin-right: 0.5em;
+}
+
+.pointer:hover {
+  cursor: pointer;
+  color: palegreen;
+}
+
+.myNav {
+  width: 360px;
+}
+
+@media screen and (max-width: 638px) {
+  .navOpen {
+    margin-right: 0em;
+  }
+
+  .navClose {
+    margin-right: 0em;
+  }
+  .myNav {
+    width: 100%;
+  }
 }
 </style>
