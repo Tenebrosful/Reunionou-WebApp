@@ -4,34 +4,87 @@
         <h2 class="mb-3 text-white">Connexion</h2>
       <form>
         <div class="mb-3">
-          <label for="exampleInputEmail1" class="form-label text-white"
+          <label for="inputUsername" class="form-label text-white"
             >Nom d'utilisateur</label
           >
           <input
-            type="email"
+            type="text"
             class="form-control"
-            id="exampleInputEmail1"
-            aria-describedby="emailHelp"
+            id="inputUsername"
+            v-model="username"
+            @keyup.enter="nextInput('inputPassword')"
           />
+          <p class="error text-danger">{{ errorUsername }}</p>
           <div id="emailHelp" class="form-text">
           </div>
         </div>
         <div class="mt-5">
-          <label for="exampleInputPassword1" class="form-label text-white">Mot de passe</label>
+          <label for="inputPassword" class="form-label text-white">Mot de passe</label>
           <input
             type="password"
             class="form-control"
-            id="exampleInputPassword1"
+            id="inputPassword"
+            v-model="password"
+            @keyup.enter="submitForm()"
           />
+          <p class="error text-danger">{{errorPassword}}</p>
         </div>
 
-        <button type="button" class="btn btn-primary mt-3">Valider</button>
+        <button type="button" class="btn btn-primary mt-3" @click="submitForm()">Valider</button>
         <br>
-        <router-link class="float-end mt-5" to="/inscription">Vous n'êtes toujours pas inscrit ?</router-link>
+        <router-link to="/inscription"
+          ><p class="text text-end mt-5" style="width:100%;">Vous n'êtes toujours pas inscrit ?</p>
+        </router-link>
+        <router-link to="/"
+          ><p class="text text-start mt-5" style="width:100%;">Retour à la carte</p>
+        </router-link>
       </form>
     </div>
   </div>
 </template>
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      username: '',
+      password: '',
+      error: false,
+      errorUsername: '',
+      errorPassword: ''
+    }
+  },
+
+  methods: {
+
+    submitForm () {
+      if (this.validateForm()) {
+
+      }
+    },
+
+    validateForm () {
+      this.errorUsername = '';
+      this.errorPassword = '';
+
+      let error = false
+
+      if (!this.username) {
+        this.errorUsername = "Veuillez entrer un nom d'utilisateur !";
+        error = true;
+      }
+
+      if (!this.password) {
+        this.errorPassword = "Veuillez entrer un mot de passe !";
+        error = true;
+      }
+
+      return !error
+    },
+
+    nextInput(input){
+      document.getElementById(input).focus()
+    }
+
+  }
+};
 </script>

@@ -54,9 +54,12 @@
         </div>
         <button type="button" class="btn btn-primary mt-5" @click="submitForm()">Valider</button>
         <br />
-        <router-link class="float-end mt-5" to="/connexion"
-          >Vous avez déjà un compte ? Connectez-vous</router-link
-        >
+        <router-link to="/connexion"
+          ><p class="text text-end mt-5" style="width:100%;">Vous avez déjà un compte ? Connectez-vous</p>
+        </router-link>
+        <router-link to="/"
+          ><p class="text text-start mt-5" style="width:100%;">Retour à la carte</p>
+        </router-link>
       </form>
     </div>
   </div>
@@ -129,20 +132,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-
-.error{
-  filter: brightness(1.10);
-  font-size: .95em;
-  font-style: italic;
-  text-align: start;
-}
-
-@media  screen and (max-width: 1000px) {
-  .card {
-    width: 95%;
-  }
-}
-
-</style>

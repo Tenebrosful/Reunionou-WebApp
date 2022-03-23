@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ markerPosition }}
     <div class="card col-10 p-5 mt-5" style="margin: 0 auto">
       <h2 class="mb-3 text-white">Créer un évènement</h2>
       <form>
@@ -63,7 +62,7 @@
         <button type="button" class="btn btn-primary mt-5">Valider</button>
         <br />
         <router-link class="float-end mt-5" to="/"
-          >Retourner au menu</router-link
+          >Retour à la carte</router-link
         >
       </form>
     </div>
