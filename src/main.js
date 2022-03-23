@@ -4,11 +4,13 @@ import App from './App.vue'
 import { createRouter,createWebHistory} from 'vue-router'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-//import "bootstrap/dist/css/bootstrap.min.css"
+//import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "bootstrap-vue/dist/bootstrap-vue.css"
 
 import 'vue-toast-notification/dist/theme-sugar.css';
+
+import '@popperjs/core';
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
