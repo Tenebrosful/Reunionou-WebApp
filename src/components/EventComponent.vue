@@ -127,6 +127,11 @@ export default {
     width: 100%;
   }
 
+.itemAutoCompleteAddress:hover{
+  cursor: pointer;
+  color:rgb(26, 103, 192);
+}
+
 @media screen  and (max-width: 638px){
 
   #modal-content, .modal-content{

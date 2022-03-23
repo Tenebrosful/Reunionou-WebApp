@@ -4,9 +4,14 @@
     style="position: absolute; z-index: 1; top: 0px; right: 0px"
   >
     <div class="d-flex justify-content-end">
-      <button class="me-2 mt-2" type="button" @click="navbarEvent()">
-        <img src="../assets/menu.png" style="width: 40px" alt="" />
-      </button>
+      <i
+        class="las la-bars la-4x btnMenu"
+        style="
+          z-index: 5;
+          cursor: pointer;
+        "
+        @click="navbarEvent()"
+      ></i>
     </div>
     <div
       id="nav"
@@ -143,6 +148,10 @@ export default {
 
 .myNav {
   width: 360px;
+}
+
+.btnMenu:hover {
+  color: dodgerblue;
 }
 
 @media screen and (max-width: 638px) {
