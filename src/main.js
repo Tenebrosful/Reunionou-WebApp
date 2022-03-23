@@ -7,6 +7,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "bootstrap-vue/dist/bootstrap-vue.css"
 
+import "leaflet/dist/leaflet.css";
+import "leaflet-geosearch/dist/geosearch.css";
+
 import HomeComponent from './components/HomeComponent.vue'
 import SigninComponent from './components/SigninComponent.vue'
 import SignupComponent from './components/SignupComponent.vue'

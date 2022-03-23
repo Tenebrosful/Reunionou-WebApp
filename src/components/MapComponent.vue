@@ -42,22 +42,9 @@ export default {
                 </div>`);
   },
   created() {
-    /*if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        console.log("test");
-        this.myPosition = [position.coord.latitude, position.coords.longitude];
-        console.log(this.myPosition);
-      });
-    } else {
-      console.log("test2");
-    }*/
+
   },
 
-  onBeforeUnmount() {
-    if (this.map) {
-      this.map.remove();
-    }
-  },
 };
 </script>
 
