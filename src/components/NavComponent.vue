@@ -7,7 +7,7 @@
       <i
         class="las la-bars la-4x btnMenu"
         style="
-          z-index: 5;
+          z-index: 15;
           cursor: pointer;
         "
         @click="navbarEvent()"

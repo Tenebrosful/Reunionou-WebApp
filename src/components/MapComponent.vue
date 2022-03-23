@@ -1,9 +1,7 @@
 <template>
-  <div>
+  <div class="d-flex justify-content-center">
     <div id="mapContainer"></div>
-    <div>
-      <div class="searchBar mt-2" style="z-index:10;">
-        <div class=" col-6" style="margin: 0 auto; min-width:200px;">
+        <div class="searchBar mt-2" style="min-width:200px; width: 40%;">
           <div class="input-group">
             <input
               type="text"
@@ -35,8 +33,6 @@
               </li>
             </ul>
           </div>
-        </div>
-      </div>
     </div>
 
     <!-- Modal -->
