@@ -1,5 +1,5 @@
 <template>
-  <div id="modal-content" class="modal-content" style="max-height:800px;overflow:hidden;">
+  <div id="modal-content" class="modal-content" style="overflow:hidden;">
     <div class="modal-header">
       <button
         type="button"
@@ -129,6 +129,7 @@ export default {
 
   #modal-content, .modal-content{
     width: 80vw; 
+    max-height: 800px;
   }
 
   .nav-pills .nav-link{
@@ -144,6 +145,8 @@ export default {
 
   #modal-content, .modal-content{
     width: 100vw;
+    height: 100%;
+    max-height: 100%;
   }
-}
+} 
 </style>

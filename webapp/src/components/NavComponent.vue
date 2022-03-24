@@ -139,6 +139,7 @@ export default {
   opacity: 0;
   transition: opacity 0.5s ease-out;
   margin-right: 0.5em;
+  display: none;
 }
 
 .pointer:hover {

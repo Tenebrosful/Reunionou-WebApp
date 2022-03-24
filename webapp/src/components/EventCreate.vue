@@ -34,7 +34,7 @@
                 aria-describedby="basic-addon1"
                 v-model="address"
                 @keyup="getAutoAddress()"
-                @blur="setTimeout( () => autocompleteAddress = null, 1000)"
+                @blur="setTimeout(() => (autocompleteAddress = null), 1000)"
               />
             </div>
             <div v-if="autocompleteAddress" class="bg-white autocomplete">
@@ -234,15 +234,16 @@ export default {
      */
     async getAutoAddress() {
       if (this.address) {
-        const request = await axios.get(
-          this.urlDataGouv + this.address + "&type=street&limit=7"
-        );
-        this.autocompleteAddress = request.data.features;
+        if (this.address.length > 8) {
+          const request = await axios.get(
+            this.urlDataGouv + this.address + "&type=street&limit=7"
+          );
+          this.autocompleteAddress = request.data.features;
+        }
       } else {
         this.autocompleteAddress = null;
       }
     },
-
   },
 
   created() {
