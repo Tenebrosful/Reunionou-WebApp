@@ -12,7 +12,7 @@
       <h3 class="modal-title text-danger mb-2" id="exampleModalLabel" style="filter: brightness(1.75);">
         {{ title }}
       </h3>
-      <p class="fs-6 text-white">adresse: {{ address }}</p>
+      <p class="fs-6 text-white font-weight-bold font-italic">adresse: {{ address }}</p>
       <p class="text-white">{{ descr }}</p>
       <div class="d-flex justify-content-center">
         <button type="button" class="btn btn-success me-5">Je viens</button>
@@ -44,6 +44,7 @@
             role="tab"
             aria-controls="pills-comments"
             aria-selected="false"
+            @click='scrollComments()'
           >
             Commentaire
             <i class="las la-comments la-lg"></i>
@@ -72,7 +73,7 @@
           role="tabpanel"
           aria-labelledby="pills-people-tab"
         >
-          <PeopleComponent id='nimp'/>
+          <PeopleComponent :id='id'/>
 
         </div>
         <div
@@ -82,7 +83,7 @@
           aria-labelledby="pills-comments-tab"
           style="overflow-y:auto;"
         >
-          <CommentsComponent id='nimp'/>
+          <CommentsComponent :id='id'/>
         </div>
         <div
           class="tab-pane fade"
@@ -113,6 +114,13 @@ export default {
   },
   mounted() {
     document.getElementById('pills-comments').scrollTo(0, 1000)
+  },
+
+  methods: {
+    scrollComments(){
+
+      setTimeout(() => document.getElementById("chat").scrollTop = document.getElementById("chatBody").offsetHeight , 300);
+    }
   }
 };
 </script>

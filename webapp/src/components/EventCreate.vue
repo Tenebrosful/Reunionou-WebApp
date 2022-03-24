@@ -34,7 +34,7 @@
                 aria-describedby="basic-addon1"
                 v-model="address"
                 @keyup="getAutoAddress()"
-                @blur="setTimeout(() => {autocompleteAddress = null}, 1000)"
+                @blur="setTimeout( () => autocompleteAddress = null, 1000)"
               />
             </div>
             <div v-if="autocompleteAddress" class="bg-white autocomplete">
@@ -43,7 +43,11 @@
                   v-for="autoAddress in autocompleteAddress"
                   :key="autoAddress.id"
                   class="itemAutoCompleteAddress"
-                  @click="address = autoAddress.properties.label; setPointByAddress(autoAddress); autocompleteAddress = null"
+                  @click="
+                    address = autoAddress.properties.label;
+                    setPointByAddress(autoAddress);
+                    autocompleteAddress = null;
+                  "
                 >
                   {{ autoAddress.properties.label }}
                 </li>
@@ -98,7 +102,7 @@ export default {
       urlDataGouv: "https://api-adresse.data.gouv.fr/search/?q=",
       apiKey: "652ac131889244eda7dfaaf0728d63ae",
       address: "",
-      autocompleteAddress: null
+      autocompleteAddress: null,
     };
   },
   mounted() {
@@ -122,8 +126,7 @@ export default {
      * @return : null
      */
     setMarkerPosition(e) {
-
-      this.markerPosition = [e.latlng.lat, e.latlng.lng]
+      this.markerPosition = [e.latlng.lat, e.latlng.lng];
 
       this.$toast.success("Votre marqueur a été enregistré", {
         position: "top",
@@ -131,20 +134,65 @@ export default {
 
       this.setAddress();
 
-      this.setMarker()
+      this.setMarker();
     },
 
     /**
      * Créé un marker sur la carte
      */
-    setMarker(){
+    setMarker() {
       if (!this.marker) {
-        this.marker = L.marker(this.markerPosition).addTo(this.map)
+        this.marker = L.marker(this.markerPosition).addTo(this.map);
       } else {
         this.marker.setLatLng(this.markerPosition);
       }
 
       this.marker.bindPopup(`<p class="text-center fs-6">${this.address}</p>`);
+    },
+
+    /**
+     * Cherche une adresse à partir des coordonnées du marker et l'enregistre dans les datas
+     * @return none
+     */
+    setAddress() {
+      axios
+        .get(
+          this.urlGeoapify +
+            "lat=" +
+            this.markerPosition[0] +
+            "&lon=" +
+            this.markerPosition[1] +
+            "&lang=fr&apiKey=" +
+            this.apiKey
+        )
+        .then((response) => {
+          const data = response.data.features[0].properties;
+          this.address =
+            data.street +
+            " " +
+            data.postcode +
+            " " +
+            data.city +
+            ", " +
+            data.country;
+        })
+        .catch((error) => {
+          this.address = "adresse inconnue";
+        });
+    },
+
+    /**
+     * Enregistre les coordonnées d'une adresse
+     * @params adresse (autoAddress)
+     * @return none
+     */
+
+    setPointByAddress(address) {
+      this.markerPosition = [
+        address.geometry.coordinates[1],
+        address.geometry.coordinates[0],
+      ];
+      this.setMarker();
     },
 
     /**
@@ -182,51 +230,19 @@ export default {
     },
 
     /**
-     * Cherche une adresse à partir des coordonnées du marker et l'enregistre dans les datas
-     * @return none
-     */
-    setAddress() {
-      axios
-        .get(
-          this.urlGeoapify +
-            "lat=" +
-            this.markerPosition[0] +
-            "&lon=" +
-            this.markerPosition[1] +
-            "&lang=fr&apiKey=" +
-            this.apiKey
-        )
-        .then((response) => {
-          const data = response.data.features[0].properties;
-          this.address = data.street + ' ' + data.postcode + ' ' + data.city + ', ' + data.country;
-        })
-        .catch((error) => {
-          this.address = "adresse inconnue";
-        });
-    },
-
-    /**
      * Récupère une liste d'adresse ayant la data 'address' dans la requête
      */
     async getAutoAddress() {
       if (this.address) {
-        const request = await axios.get(this.urlDataGouv + this.address + "&type=street&limit=7");
-        this.autocompleteAddress =  request.data.features;
+        const request = await axios.get(
+          this.urlDataGouv + this.address + "&type=street&limit=7"
+        );
+        this.autocompleteAddress = request.data.features;
       } else {
         this.autocompleteAddress = null;
       }
     },
 
-    /**
-     * Enregistre les coordonnées d'une adresse
-     * @params adresse (autoAddress)
-     * @return none
-     */
-
-    setPointByAddress(address){
-      this.markerPosition = [address.geometry.coordinates[1], address.geometry.coordinates[0]]
-      this.setMarker()
-    }
   },
 
   created() {
@@ -270,8 +286,8 @@ export default {
   position: absolute;
 }
 
-.itemAutoCompleteAddress:hover{
+.itemAutoCompleteAddress:hover {
   cursor: pointer;
-  color:rgb(26, 103, 192);
+  color: rgb(26, 103, 192);
 }
 </style>

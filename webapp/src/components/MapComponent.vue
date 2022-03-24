@@ -1,38 +1,37 @@
 <template>
   <div class="d-flex justify-content-center">
     <div id="mapContainer"></div>
-        <div class="searchBar mt-2" style="min-width:200px; width: 40%;">
-          <div class="input-group">
-            <input
-              type="text"
-              class="form-control bg-white text-black"
-              placeholder="Rechercher une adresse"
-              aria-label="address"
-              id="address"
-              style="height: 50px"
-              aria-describedby="basic-addon1"
-              v-model="address"
-              @keyup="getAutoAddress()"
-              @blur="setTimeout(() => {autocompleteAddress = null}, 1000)"
-              
-            />
-          </div>
-          <div v-if="autocompleteAddress" class="bg-white autocomplete">
-            <ul class="list-group">
-              <li
-                v-for="autoAddress in autocompleteAddress"
-                :key="autoAddress.id"
-                class="itemAutoCompleteAddress mt-1"
-                v-on:click="
-                  address = autoAddress.properties.label;
-                  centerByAddress(autoAddress);
-                  autocompleteAddress = null;
-                "
-              >
-                {{ autoAddress.properties.label }}
-              </li>
-            </ul>
-          </div>
+    <div class="searchBar mt-2" style="min-width: 200px; width: 40%">
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control bg-white text-black"
+          placeholder="Rechercher une adresse"
+          aria-label="address"
+          id="address"
+          style="height: 50px"
+          aria-describedby="basic-addon1"
+          v-model="address"
+          @keyup="getAutoAddress()"
+          @blur="setTimeout( () => autocompleteAddress = null, 1000)"
+        />
+      </div>
+      <div v-if="autocompleteAddress" class="bg-white autocomplete">
+        <ul class="list-group">
+          <li
+            v-for="autoAddress in autocompleteAddress"
+            :key="autoAddress.id"
+            class="itemAutoCompleteAddress mt-1"
+            v-on:click="
+              address = autoAddress.properties.label;
+              centerByAddress(autoAddress);
+              autocompleteAddress = null;
+            "
+          >
+            {{ autoAddress.properties.label }}
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- Modal -->
@@ -43,12 +42,12 @@
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered">
+      <div v-if="event" class="modal-dialog modal-dialog-centered">
         <EventComponent
-          id="id"
-          title="Anniversaire de Clara"
-          descr="test déscription"
-          address="6 rue Jeanne d'arc, Nancy 54000"
+          :id="event.id"
+          :title="event.title"
+          :descr="event.description"
+          :address="event.coords.address"
         />
       </div>
     </div>
@@ -71,25 +70,12 @@ export default {
       apiKey: "652ac131889244eda7dfaaf0728d63ae",
       address: "",
       autocompleteAddress: null,
+      event: null,
     };
   },
   components: { EventComponent },
   mounted() {
-    this.map = L.map("mapContainer").setView(this.myPosition, 15);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(this.map);
-    this.getUserPosition();
-    //use a mix of renderers
-    let customPane = this.map.createPane("customPane");
-    customPane.style.zIndex = 399; // put just behind the standard overlay pane which is at 400
-    let marker = L.marker([48.692154, 6.184517]).addTo(this.map)
-      .bindPopup(`<h4 class="text-center">Anniversaire de Clara</h4>
-                <p class="text-center fs-6">6 rue Jeanne d'arc, Nancy 54000</p>
-                <div class="d-flex justify-content-center">
-                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#exampleModal">voir plus</button>
-                </div>`);
+    this.setMap();
   },
 
   methods: {
@@ -97,7 +83,7 @@ export default {
      * Récupère les coordonnées de l'utilisateur
      * @return none
      */
-    getUserPosition() {
+    async getUserPosition() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
           this.myPosition = [pos.coords.latitude, pos.coords.longitude];
@@ -105,9 +91,14 @@ export default {
           marker.addTo(this.map);
           marker.bindPopup(`<h4 class="text-center">Moi</h4>`);
           marker._icon.style.filter = "hue-rotate(150deg)";
-          this.map.flyTo(this.myPosition, 16);
+
+          if (!this.idEvent) {
+            this.map.flyTo(this.myPosition, 16);
+          }
         });
       }
+
+      this.setEventMarker();
     },
 
     /**
@@ -125,17 +116,74 @@ export default {
     },
 
     /**
+     * Créé la carte
+     * @return none
+     */
+    setMap() {
+      this.map = L.map("mapContainer").setView(this.myPosition, 15);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(this.map);
+      this.getUserPosition();
+      //use a mix of renderers
+      let customPane = this.map.createPane("customPane");
+      customPane.style.zIndex = 399; // put just behind the standard overlay pane which is at 400
+      let marker = L.marker([48.692154, 6.184517]).addTo(this.map)
+        .bindPopup(`<h4 class="text-center">Anniversaire de Clara</h4>
+                <p class="text-center fs-6">6 rue Jeanne d'arc, Nancy 54000</p>
+                <div class="d-flex justify-content-center">
+                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#exampleModal">voir plus</button>
+                </div>`);
+    },
+
+    /**
+     * Ajoute un marker évènement si il y a un id dans la route
+     * @return none
+     */
+    setEventMarker() {
+      if (this.idEvent) {
+        axios
+          .get(this.$apiUrl + "/event/" + this.idEvent)
+          .then((response) => {
+            const event = response.data;
+            this.event = event;
+            L.marker([event.coords.lat, event.coords.long]).addTo(this.map)
+              .bindPopup(`<h4 class="text-center">${event.title}</h4>
+                <p class="text-center fs-6">${event.coords.address}</p>
+                <div class="d-flex justify-content-center">
+                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#exampleModal">voir plus</button>
+                </div>`);
+            this.map.flyTo([event.coords.lat, event.coords.long], 16);
+          })
+          .catch((error) => {
+            this.$toast.error("Cette évènement est introuvable", {
+              position: "bottom",
+            });
+          });
+      }
+    },
+
+    /**
      * Centre la carte par rapport à l'adresse choisie
      * @params adresse (autoAddress)
      * @return none
      */
 
     centerByAddress(address) {
-      this.map.flyTo([
-        address.geometry.coordinates[1],
-        address.geometry.coordinates[0]],
+      this.map.flyTo(
+        [address.geometry.coordinates[1], address.geometry.coordinates[0]],
         17
       );
+    },
+  },
+
+  computed: {
+    /**
+     * retourne me parametre id
+     */
+    idEvent() {
+      return this.$route.params.id;
     },
   },
 };
@@ -164,9 +212,9 @@ export default {
   width: 100%;
 }
 
-.itemAutoCompleteAddress:hover{
+.itemAutoCompleteAddress:hover {
   cursor: pointer;
-  color:rgb(26, 103, 192);
+  color: rgb(26, 103, 192);
 }
 
 @media screen and (max-width: 638px) {

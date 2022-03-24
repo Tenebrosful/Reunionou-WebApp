@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import Vuex from 'vuex'
 import VueToast from 'vue-toast-notification';
 import App from './App.vue'
 import { createRouter,createWebHistory} from 'vue-router'
@@ -18,13 +19,17 @@ import '@popperjs/core';
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
 
+import * as dotenv from 'dotenv'
+
+import store from './store.js'
+
 import HomeComponent from './components/HomeComponent.vue'
 import SigninComponent from './components/SigninComponent.vue'
 import SignupComponent from './components/SignupComponent.vue'
 import EventCreate from './components/EventCreate.vue'
 
 const routes = [
-    { path: '/', component: HomeComponent },
+    { path: '/:id?', component: HomeComponent },
     { path: '/connexion', component: SigninComponent},
     { path: '/inscription', component: SignupComponent},
     { path: '/creationEvenement', component: EventCreate}
@@ -35,11 +40,18 @@ const router = new createRouter({
     routes
   })
 
+
  const app = createApp(App)
- 
+
+ app.config.globalProperties.$apiUrl = "http://docketu.iutnc.univ-lorraine.fr:62460/api"
+ app.config.globalProperties.$store = store
+
  app.use(router)
  app.use(VueToast);
+ app.use(Vuex)
  
  app.component("font-awesome-icon", FontAwesomeIcon)
 
  app.mount('#app')
+
+ 

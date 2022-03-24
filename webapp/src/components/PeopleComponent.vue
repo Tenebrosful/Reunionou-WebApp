@@ -1,27 +1,71 @@
 <template>
-  <table class="table table-striped" style="max-height:300px; overflow:auto;">
+  <div v-if="$store.state.usersEvent">
+    <table
+      class="table table-striped"
+      style="max-height: 300px; overflow: auto"
+    >
       <tbody>
-          <tr>
-              <td>Jean Didier</td>
-              <td>vient</td>
-          </tr>
-          <tr>
-              <td>Geoffrey Porayko</td>
-              <td>Ne vient pas</td>
-          </tr>
-          <tr>
-              <td>Hugo Bernard</td>
-              <td>vient</td>
-          </tr>
+        <tr
+          v-for="people in $store.state.usersEvent.participants"
+          :key="people.id"
+        >
+          <td>{{ people.username }}</td>
+          <td v-if="people.comeToEvent">Vient</td>
+          <td v-else>Ne vient pas</td>
+        </tr>
       </tbody>
-  </table>
+    </table>
+  </div>
+  <div v-else>
+    <div v-if="loading"></div>
+    <div v-else>
+      <p>Erreur lors de la récupération des personnes</p>
+    </div>
+  </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
   props: ["id"],
   data() {
-    return {};
+    return {
+      loading: true,
+      error: false,
+    };
+  },
+
+  mounted() {
+
+    this.getUsersEvent();
+  },
+
+  methods: {
+    /**
+     * Récupère les personnes associées à un évènement
+     * @return none
+     */
+    getUsersEvent() {
+      axios
+        .get(this.$apiUrl + "/event/" + this.id + "/participants")
+        .then((response) => {
+          const people = response.data;
+          this.$store.state.usersEvent = people;
+        })
+        .catch((error) => {
+          this.$toast.error(
+            "Impossible de récupérer les personnes liées à l'évènement. Erreur: " +
+              error,
+            {
+              position: "bottom",
+            }
+          );
+          this.error = true;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
   },
 };
 </script>

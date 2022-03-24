@@ -5,22 +5,37 @@
       <form>
         <div class="form-group row mt-3">
           <label for="usernameInput" class="col-sm-4 col-form-label text-white"
-            >Nom d'utilisateur</label
+            >Nom d'utilisateur <b class="text-danger">*</b></label
           >
           <div class="col-sm-8">
-            <input 
-            type="text" 
-            class="form-control"
-            id="InputUsername" 
-            v-model="username" 
-            @keyup.enter.exact="nextInput('inputPassword')" 
+            <input
+              type="text"
+              class="form-control"
+              id="InputUsername"
+              v-model="username"
+              @keyup.enter.exact="nextInput('mailInput')"
             />
             <p class="error text-danger">{{ errorUsername }}</p>
           </div>
         </div>
         <div class="form-group row mt-3">
+          <label for="mailInput" class="col-sm-4 col-form-label text-white"
+            >Email</label
+          >
+          <div class="col-sm-8">
+            <input
+              type="email"
+              pattern = "[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" 
+              class="form-control"
+              id="mailInput"
+              v-model="mail"
+              @keyup.enter.exact="nextInput('inputPassword')"
+            />
+          </div>
+        </div>
+        <div class="form-group row mt-3">
           <label for="inputPassword" class="col-sm-4 col-form-label text-white"
-            >Mot de passe</label
+            >Mot de passe <b class="text-danger">*</b></label
           >
           <div class="col-sm-8">
             <input
@@ -38,7 +53,7 @@
           <label
             for="inputPasswordConfirm"
             class="col-sm-4 col-form-label text-white"
-            >Confirmation mot de passe</label
+            >Confirmation mot de passe <b class="text-danger">*</b></label
           >
           <div class="col-sm-8">
             <input
@@ -52,25 +67,39 @@
             <p class="error text-danger">{{ errorPasswordConfirm }}</p>
           </div>
         </div>
-        <button type="button" class="btn btn-primary mt-5" @click="submitForm()">Valider</button>
+        <button
+          type="submit"
+          class="btn btn-primary mt-5"
+          @click="event => submitForm(event)"
+        >
+          Valider
+        </button>
         <br />
         <router-link to="/connexion"
-          ><p class="text text-end mt-5" style="width:100%;">Vous avez déjà un compte ? Connectez-vous</p>
+          ><p class="text text-end mt-5" style="width: 100%">
+            Vous avez déjà un compte ? Connectez-vous
+          </p>
         </router-link>
         <router-link to="/"
-          ><p class="text text-start mt-5" style="width:100%;">Retour à la carte</p>
+          ><p class="text text-start mt-5" style="width: 100%">
+            Retour à la carte
+          </p>
         </router-link>
       </form>
     </div>
   </div>
 </template>
+
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
-      username: '',
-      password: '',
-      passwordConfirm: '',
+      username: "",
+      mail: "",
+      password: "",
+      passwordConfirm: "",
       error: false,
       errorUsername: "",
       errorPassword: "",
@@ -79,25 +108,42 @@ export default {
   },
 
   methods: {
-
     /**
      * Enregistre un utilisateur
+     * @params évènement (e)
      * @return none
-    */
-    submitForm() {
-      if (this.validateForm()) {
-
-      }
+     */
+    submitForm(e) {
+      e.preventDefault()
+      if (!this.validateForm()) return;
+      axios
+        .post(this.$apiUrl + "/user", {
+          default_mail: this.mail,
+          password: this.password,
+          username: this.username,
+        })
+        .then(() => {
+          this.clearInput();
+          this.$toast.success("Vous avez bien été enregistré", {
+            position: "bottom",
+          });
+          window.location.href = "/";
+        })
+        .catch((error) => {
+          this.$toast.error(
+            "Vous n'avez pas été enregistré. Erreur: " + error,
+            { position: "bottom" }
+          );
+        });
     },
 
     /**
      * Valide les données du formulaire
      * @return boolean
-    */
+     */
     validateForm() {
-      this.errorUsername = ''
-      this.errorPassword = ''
-      this.errorPasswordConfirm = ''
+      this.clearError();
+
       let error = false;
       if (!this.username) {
         this.errorUsername = "Veuillez entrer un nom d'utilisateur !";
@@ -108,8 +154,7 @@ export default {
         this.errorPassword = "Veuillez entrer un mot de passe !";
         error = true;
       } else {
-
-        if ( this.password.length < 8){
+        if (this.password.length < 8) {
           this.errorPassword = "Votre mot de passe n'est pas assez long !";
           error = true;
         }
@@ -117,18 +162,45 @@ export default {
         if (!this.passwordConfirm) {
           this.errorPasswordConfirm = "Veuillez confirmer le mot de passe !";
           error = true;
-        } else if (this.password !== this.passwordConfirm){
-          this.errorPasswordConfirm = "Les mots de passe ne correspondent pas !";
+        } else if (this.password !== this.passwordConfirm) {
+          this.errorPasswordConfirm =
+            "Les mots de passe ne correspondent pas !";
           error = true;
         }
       }
 
-      return !error
+      return !error;
     },
 
-    nextInput(input){
-      document.getElementById(input).focus()
-    }
+    /**
+     * Vide les champs du formulaire
+     * @return none
+     */
+    clearInput() {
+      this.username = "";
+      this.mail = "";
+      this.password = "";
+      this.passwordConfirm = "";
+    },
+
+    /**
+     * Vide les textes d'erreurs'
+     * @return none
+     */
+    clearError() {
+      this.errorUsername = "";
+      this.errorPassword = "";
+      this.errorPasswordConfirm = "";
+    },
+
+    /**
+     * Fait déscendre le focus d'un input
+     * @params id de l'input suivant (input)
+     * @return none
+     */
+    nextInput(input) {
+      document.getElementById(input).focus();
+    },
   },
 };
 </script>
