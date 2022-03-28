@@ -58,6 +58,7 @@ export default {
               error,
             {
               position: "bottom",
+              timeout: 10000
             }
           );
           this.error = true;

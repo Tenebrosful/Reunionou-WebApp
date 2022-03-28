@@ -132,6 +132,10 @@ export default {
     max-height: 800px;
   }
 
+  .modal-body{
+    overflow: auto;
+  }
+
   .nav-pills .nav-link{
     width: 100%;
   }

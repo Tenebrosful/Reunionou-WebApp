@@ -1,7 +1,6 @@
 <template>
     <div>
         <MapComponent/>
-        <NavComponent/>
     </div>
 </template>
 

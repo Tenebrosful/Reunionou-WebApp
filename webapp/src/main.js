@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import './assets/main.css' 
 
+import axios from 'axios';
+
 import "bootstrap/dist/js/bootstrap.min.js";
 import "bootstrap-vue/dist/bootstrap-vue.css"
 
@@ -40,15 +42,19 @@ const router = new createRouter({
     routes
   })
 
+axios.defaults.headers.post['Application'] = 'webApp'
+axios.defaults.headers.get['Application'] = 'webApp'
+axios.defaults.headers.delete['Application'] = 'webApp'
+axios.defaults.headers.put['Application'] = 'webApp'
 
  const app = createApp(App)
 
- app.config.globalProperties.$apiUrl = "http://docketu.iutnc.univ-lorraine.fr:62460/api"
- app.config.globalProperties.$store = store
+ app.config.globalProperties.$apiUrl = "http://docketu.iutnc.univ-lorraine.fr:62461/api"
 
  app.use(router)
- app.use(VueToast);
+ app.use(VueToast)
  app.use(Vuex)
+ app.use(store)
  
  app.component("font-awesome-icon", FontAwesomeIcon)
 

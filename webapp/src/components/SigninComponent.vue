@@ -54,6 +54,7 @@
   </div>
 </template>
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -71,8 +72,24 @@ export default {
      * @return none
      */
     submitForm() {
-      if (this.validateForm()) {
-      }
+      if (!this.validateForm()) return;
+
+      axios
+      .post(this.$apiUrl + '/auth', {
+        login: this.username,
+        password: this.password
+      })
+      .then((response) => {
+        this.$store.commit("saveUser", response.data.user)
+        console.log(axios.defaults.headers);
+        window.location.href = '/'
+      })
+      .catch((error) => {
+        this.$toast.error(
+            error,
+            { position: "bottom" }
+          );
+      })
     },
 
     /**

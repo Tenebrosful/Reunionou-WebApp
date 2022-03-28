@@ -1,6 +1,7 @@
 <template>
   <div class="d-flex justify-content-center">
     <div id="mapContainer"></div>
+    <NavComponent v-if="events" :events="events"/>
     <div class="searchBar mt-2" style="min-width: 200px; width: 40%">
       <div class="input-group">
         <input
@@ -13,7 +14,7 @@
           aria-describedby="basic-addon1"
           v-model="address"
           @keyup="getAutoAddress()"
-          @blur="setTimeout( () => autocompleteAddress = null, 1000)"
+          @blur="setTimeout(() => (autocompleteAddress = null), 1000)"
         />
       </div>
       <div v-if="autocompleteAddress" class="bg-white autocomplete">
@@ -51,6 +52,35 @@
         />
       </div>
     </div>
+
+    <div
+      v-if="$store.state.user"
+      class="container"
+      style="position: absolute; bottom: 10px; left: 10px; z-index: 10"
+    >
+      <div class="row col-auto col-lg-4 me-2">
+        <button
+          type="text"
+          class="card text-white p-1 col"
+          style="height: 100%"
+          disabled
+        >
+          {{ $store.state.user.username }}
+        </button>
+        <button type="text" class="btn btn-primary col ms-2" @click="signOut()">
+          Déconnexion
+        </button>
+      </div>
+    </div>
+
+    <div
+      v-else
+      style="position: absolute; bottom: 10px; left: 10px; z-index: 10"
+    >
+      <router-link class="btn btn-primary" to="/connexion"
+        >Connexion</router-link
+      >
+    </div>
   </div>
 </template>
 
@@ -59,6 +89,8 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import axios from "axios";
 import EventComponent from "./EventComponent.vue";
+import NavComponent from './NavComponent.vue'
+import { mapState } from 'vuex'
 
 export default {
   name: "LeafletMap",
@@ -71,14 +103,20 @@ export default {
       address: "",
       autocompleteAddress: null,
       event: null,
+      events:[],
+      myEvents:[]
     };
   },
-  components: { EventComponent },
+  components: { EventComponent, NavComponent},
   mounted() {
     this.setMap();
+    console.log(this.$store.state.test);
+    this.$store.state.test = this.$store.state.test +1
+    console.log(this.$store.state.test);
   },
 
   methods: {
+
     /**
      * Récupère les coordonnées de l'utilisateur
      * @return none
@@ -138,10 +176,10 @@ export default {
     },
 
     /**
-     * Ajoute un marker évènement si il y a un id dans la route
+     * Ajoute des markers évènements si l'utilisateur est authentifié, si il y a un id dans la route ou si il y a des évènements en public
      * @return none
      */
-    setEventMarker() {
+    async setEventMarker() {
       if (this.idEvent) {
         axios
           .get(this.$apiUrl + "/event/" + this.idEvent)
@@ -157,10 +195,33 @@ export default {
             this.map.flyTo([event.coords.lat, event.coords.long], 16);
           })
           .catch((error) => {
+            console.log(error);
             this.$toast.error("Cette évènement est introuvable", {
               position: "bottom",
             });
           });
+      }
+
+      if (this.$store.state.user) {
+        try {
+
+          const response = await axios.get(this.$apiUrl + "/user/" + this.$store.state.user.id + '/joined-event')
+          response.data.events.forEach(event => {
+              const marker = L.marker([event.coords.lat, event.coords.long]).addTo(this.map)
+              .bindPopup(`<h4 class="text-center">${event.title}</h4>
+                <p class="text-center fs-6">${event.coords.address}</p>
+                <div class="d-flex justify-content-center">
+                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#exampleModal">voir plus</button>
+                </div>`);
+              marker.addEventListener('click', () => {
+                this.event = event
+              })
+            this.events.push(event)
+            });
+
+        } catch (error){
+          console.log(error);
+        }
       }
     },
 
@@ -176,9 +237,35 @@ export default {
         17
       );
     },
+
+    /**
+     * Centre la carte par rapport à des coordonnées
+     * @params lat, long
+     * @return none
+     */
+
+    centerByCoords(lat, long){
+      this.map.flyTo(
+        [lat, long],
+        17
+      );
+    },
+
+    /**
+     * Déconnecte l'utilisateur
+     * @return none
+     */
+    signOut() {
+      this.$store.commit("signOut")
+    },
   },
 
   computed: {
+
+    ...mapState({
+    // ...
+  }),
+
     /**
      * retourne me parametre id
      */

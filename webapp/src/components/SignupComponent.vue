@@ -3,6 +3,7 @@
     <div class="card col-5 p-5 mt-5" style="margin: 0 auto">
       <h2 class="mb-3 text-white">Inscription</h2>
       <form>
+
         <div class="form-group row mt-3">
           <label for="usernameInput" class="col-sm-4 col-form-label text-white"
             >Nom d'utilisateur <b class="text-danger">*</b></label
@@ -13,11 +14,28 @@
               class="form-control"
               id="InputUsername"
               v-model="username"
-              @keyup.enter.exact="nextInput('mailInput')"
+              @keyup.enter.exact="nextInput('loginInput')"
             />
             <p class="error text-danger">{{ errorUsername }}</p>
           </div>
         </div>
+
+        <div class="form-group row mt-3">
+          <label for="loginInput" class="col-sm-4 col-form-label text-white"
+            >Identifiant <b class="text-danger">*</b></label
+          >
+          <div class="col-sm-8">
+            <input
+              type="text"
+              class="form-control"
+              id="loginInput"
+              v-model="login"
+              @keyup.enter.exact="nextInput('passwordInput')"
+            />
+            <p class="error text-danger">{{ errorUsername }}</p>
+          </div>
+        </div>
+
         <div class="form-group row mt-3">
           <label for="mailInput" class="col-sm-4 col-form-label text-white"
             >Email</label
@@ -102,6 +120,7 @@ export default {
       passwordConfirm: "",
       error: false,
       errorUsername: "",
+      errorLogin: '',
       errorPassword: "",
       errorPasswordConfirm: "",
     };
@@ -117,16 +136,18 @@ export default {
       e.preventDefault()
       if (!this.validateForm()) return;
       axios
-        .post(this.$apiUrl + "/user", {
+        .post(this.$apiUrl + "/auth/inscription", {
           default_mail: this.mail,
+          login:this.login,
           password: this.password,
           username: this.username,
         })
-        .then(() => {
+        .then((reponse) => {
           this.clearInput();
           this.$toast.success("Vous avez bien été enregistré", {
             position: "bottom",
           });
+          this.$store.commit("saveUser", response.data.user)
           window.location.href = "/";
         })
         .catch((error) => {
@@ -145,6 +166,12 @@ export default {
       this.clearError();
 
       let error = false;
+
+      if (!this.login) {
+        this.errorLogin = "Veuillez entrer un identifiant !";
+        error = true;
+      }
+
       if (!this.username) {
         this.errorUsername = "Veuillez entrer un nom d'utilisateur !";
         error = true;
@@ -177,6 +204,7 @@ export default {
      * @return none
      */
     clearInput() {
+      this.login = "";
       this.username = "";
       this.mail = "";
       this.password = "";
@@ -188,6 +216,7 @@ export default {
      * @return none
      */
     clearError() {
+      this.errorLogin = "";
       this.errorUsername = "";
       this.errorPassword = "";
       this.errorPasswordConfirm = "";

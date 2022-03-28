@@ -81,9 +81,7 @@
           aria-labelledby="pills-events-tab"
         >
           <ul class="list-group list-group-flush">
-            <li class="list-group-item pointer">Anniversaire de Clara</li>
-            <li class="list-group-item pointer">Mariage de Stephane</li>
-            <li class="list-group-item pointer">Soirée 80s</li>
+            <li v-for="event in events" :key="event.id" class="list-group-item pointer" @click="$parent.centerByCoords(event.coords.lat, event.coords.long)">{{event.title}}</li>
           </ul>
         </div>
         <div
@@ -105,11 +103,13 @@
 
 <script>
 export default {
+  props: ["events"],
   data() {
     return {
       navClose: false,
     };
   },
+
 
   methods: {
     navbarEvent() {
@@ -124,6 +124,10 @@ export default {
       }
     },
   },
+
+  mounted(){
+    console.log(this.events);
+  }
 };
 </script>
 
