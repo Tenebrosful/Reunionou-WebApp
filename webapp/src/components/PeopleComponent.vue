@@ -6,8 +6,8 @@
     >
       <tbody>
         <tr
-          v-for="people in $store.state.usersEvent.participants"
-          :key="people.id"
+          v-for="people in $store.state.usersEvent"
+          :key="people.username"
         >
           <td>{{ people.username }}</td>
           <td v-if="people.comeToEvent">Vient</td>
@@ -50,7 +50,9 @@ export default {
         .get(this.$apiUrl + "/event/" + this.id + "/participants")
         .then((response) => {
           const people = response.data;
-          this.$store.state.usersEvent = people;
+          people.participants.forEach(participant => {
+            this.$store.commit("addUserEvent", { username: participant.username, comeToEvent: participant.comeToEvent})
+          });
         })
         .catch((error) => {
           this.$toast.error(

@@ -81,7 +81,7 @@ export default {
       })
       .then((response) => {
         this.$store.commit("saveUser", response.data.user)
-        console.log(axios.defaults.headers);
+        this.$store.commit("setExpirationDate")
         window.location.href = '/'
       })
       .catch((error) => {

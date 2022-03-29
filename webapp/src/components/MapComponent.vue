@@ -38,9 +38,9 @@
     <!-- Modal -->
     <div
       class="modal fade"
-      id="exampleModal"
+      id="eventModal"
       tabindex="-1"
-      aria-labelledby="exampleModalLabel"
+      aria-labelledby="eventModalLabel"
       aria-hidden="true"
     >
       <div v-if="event" class="modal-dialog modal-dialog-centered">
@@ -48,7 +48,8 @@
           :id="event.id"
           :title="event.title"
           :descr="event.description"
-          :address="event.coords.address"
+          :coords="event.coords"
+          :date="event.date"
         />
       </div>
     </div>
@@ -108,11 +109,18 @@ export default {
     };
   },
   components: { EventComponent, NavComponent},
+
+  created () {
+
+    // Vide les données du localStorage si la date d'expiration est dépassée 
+    if(window.localStorage.vuex && new Date(window.localStorage.vuex.expirationDate) < new Date()){
+      window.localStorage.vuex = null
+    }
+
+  }, 
+
   mounted() {
     this.setMap();
-    console.log(this.$store.state.test);
-    this.$store.state.test = this.$store.state.test +1
-    console.log(this.$store.state.test);
   },
 
   methods: {
@@ -171,7 +179,7 @@ export default {
         .bindPopup(`<h4 class="text-center">Anniversaire de Clara</h4>
                 <p class="text-center fs-6">6 rue Jeanne d'arc, Nancy 54000</p>
                 <div class="d-flex justify-content-center">
-                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#exampleModal">voir plus</button>
+                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#eventModal">voir plus</button>
                 </div>`);
     },
 
@@ -190,7 +198,7 @@ export default {
               .bindPopup(`<h4 class="text-center">${event.title}</h4>
                 <p class="text-center fs-6">${event.coords.address}</p>
                 <div class="d-flex justify-content-center">
-                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#exampleModal">voir plus</button>
+                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#eventModal">voir plus</button>
                 </div>`);
             this.map.flyTo([event.coords.lat, event.coords.long], 16);
           })
@@ -205,13 +213,13 @@ export default {
       if (this.$store.state.user) {
         try {
 
-          const response = await axios.get(this.$apiUrl + "/user/" + this.$store.state.user.id + '/joined-event')
+          const response = await axios.get(this.$apiUrl + "/user/" + this.$store.state.user.id + '/joined-event', {headers: { authorization: this.$store.state.user.token } })
           response.data.events.forEach(event => {
               const marker = L.marker([event.coords.lat, event.coords.long]).addTo(this.map)
               .bindPopup(`<h4 class="text-center">${event.title}</h4>
                 <p class="text-center fs-6">${event.coords.address}</p>
                 <div class="d-flex justify-content-center">
-                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#exampleModal">voir plus</button>
+                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#eventModal">voir plus</button>
                 </div>`);
               marker.addEventListener('click', () => {
                 this.event = event
@@ -220,7 +228,10 @@ export default {
             });
 
         } catch (error){
-          console.log(error);
+          this.$toast.error(
+            "Veuillez vous reconnecter",
+            { position: "bottom" }
+          );
         }
       }
     },

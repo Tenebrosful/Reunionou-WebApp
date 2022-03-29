@@ -18,7 +18,7 @@
       class="navClose rounded mt-2 p-2"
       style="background-color: #424242"
     >
-      <router-link
+      <router-link v-if="$store.state.user"
         to="creationEvenement"
         type="button"
         class="btn btn-secondary mt-2"
@@ -35,7 +35,7 @@
           style="margin: 0 auto; margint-bottom: 0px"
           role="events"
         >
-          <button
+          <button v-if="$store.state.user"
             class="nav-link active"
             id="pills-events-tab"
             style="width: 100%"
@@ -54,7 +54,7 @@
           style="margin: 0 auto; height: 2%"
           role="myEvents"
         >
-          <button
+          <button v-if="$store.state.user"
             class="nav-link"
             id="pills-myEvents-tab"
             style="width: 100%"

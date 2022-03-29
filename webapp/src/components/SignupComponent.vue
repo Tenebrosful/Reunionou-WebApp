@@ -148,6 +148,7 @@ export default {
             position: "bottom",
           });
           this.$store.commit("saveUser", response.data.user)
+          this.$store.commit("setExpirationDate")
           window.location.href = "/";
         })
         .catch((error) => {

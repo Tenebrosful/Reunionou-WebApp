@@ -23,7 +23,7 @@ import "leaflet-geosearch/dist/geosearch.css";
 
 import * as dotenv from 'dotenv'
 
-import store from './store.js'
+import store from './store/store.js'
 
 import HomeComponent from './components/HomeComponent.vue'
 import SigninComponent from './components/SigninComponent.vue'

@@ -12,8 +12,12 @@
       <h3 class="modal-title text-danger mb-2" id="exampleModalLabel" style="filter: brightness(1.75);">
         {{ title }}
       </h3>
-      <p class="fs-6 text-white font-weight-bold font-italic">adresse: {{ address }}</p>
+      <h6 class="text-white">Le {{new Date(date).toLocaleString()}}</h6>
+      <p class="fs-6 text-white font-weight-bold font-italic">adresse: {{ coords.address }}</p>
       <p class="text-white">{{ descr }}</p>
+      <div v-if="!$store.state.user" class="col-3 mb-3" style="margin:0 auto;">
+        <input type="text" class="form-control bg-white" id="UsernameInput"  v-model="username" placeholder="J'écris mon nom et prénom">
+      </div>
       <div class="d-flex justify-content-center">
         <button type="button" class="btn btn-success me-5">Je viens</button>
         <button type="button" class="btn btn-danger">Je ne viens pas</button>
@@ -53,12 +57,12 @@
         <li class="nav-item" role="info">
           <button
             class="nav-link"
-            id="pills-contact-tab"
+            id="pills-info-tab"
             data-bs-toggle="pill"
-            data-bs-target="#pills-contact"
+            data-bs-target="#pills-info"
             type="button"
             role="tab"
-            aria-controls="pills-contact"
+            aria-controls="pills-info"
             aria-selected="false"
           >
             info
@@ -87,11 +91,11 @@
         </div>
         <div
           class="tab-pane fade"
-          id="pills-contact"
+          id="pills-info"
           role="tabpanel"
-          aria-labelledby="pills-contact-tab"
+          aria-labelledby="pills-info-tab"
         >
-          ...
+          <InformationComponent :coords="coords" :date="date"/> 
         </div>
       </div>
     </div>
@@ -106,20 +110,64 @@
 <script>
 import PeopleComponent from './PeopleComponent.vue'
 import CommentsComponent from './CommentsComponent.vue'
+import InformationComponent from './InformationComponent.vue'
 export default {
-  props: ["id", "title", "descr", "address"],
-  components: { PeopleComponent, CommentsComponent },
+  props: ["id", "title", "descr", "coords", "date"],
+  components: { PeopleComponent, CommentsComponent, InformationComponent},
   data() {
-    return {};
+    return {
+      username: ''
+    };
   },
   mounted() {
     document.getElementById('pills-comments').scrollTo(0, 1000)
   },
 
   methods: {
+
+    /**
+     * Scroll tout en bas de la section commentaire
+     * @return none
+     */
     scrollComments(){
 
       setTimeout(() => document.getElementById("chat").scrollTop = document.getElementById("chatBody").offsetHeight , 300);
+    },
+
+    /**
+     * Déclare l'utilisateur dans la liste des participants
+     * @param come (bool) indique si le participant vient ou non
+     * @return none
+     */
+    participe(come){
+      const fields = {}
+
+      if (this.username) {
+
+        fields.username = this.username
+
+      } else {
+
+        if (this.$store.state.user) {
+          fields.username = this.$store.state.user.username
+          fields.id = this.$store.state.user.id
+        }
+
+      }
+
+       axios
+          .post(this.$apiUrl + "/event/" + this.idEvent + "join-event", {
+            username: fields.username,
+            id: fields?.id
+          } , {headers: { authorization: this.$store.state.user.token } })
+          .then(() => {
+
+            this.$toast.success("Votre réponse a été enregistré", {
+              position: "bottom",
+            });
+
+            this.$store.commit("addUserEvent", {username: fields.username, comeToEvent: come})
+          })
     }
   }
 };
