@@ -31,7 +31,17 @@ const store = new Vuex.Store({
     },
 
     addUserEvent(state, user){
-      state.usersEvent.push(user)
+      let particip 
+      if(particip = state.usersEvent.find(participant => participant.username === user.username )){
+        particip.comeToEvent = user.comeToEvent
+      } else {
+        state.usersEvent.push(user)
+      }
+
+    },
+
+    deleteUserEvent (state) {
+      state.usersEvent = []
     }
 
   },

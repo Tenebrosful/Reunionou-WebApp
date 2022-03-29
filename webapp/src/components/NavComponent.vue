@@ -81,7 +81,7 @@
           aria-labelledby="pills-events-tab"
         >
           <ul class="list-group list-group-flush">
-            <li v-for="event in events" :key="event.id" class="list-group-item pointer" @click="$parent.centerByCoords(event.coords.lat, event.coords.long)">{{event.title}}</li>
+            <li v-for="event in $parent.events" :key="event.id" class="list-group-item pointer" @click="$parent.centerByCoords(event.coords.lat, event.coords.long)">{{event.title}}</li>
           </ul>
         </div>
         <div
@@ -91,9 +91,7 @@
           aria-labelledby="pills-myEvents-tab"
         >
           <ul class="list-group list-group-flush">
-            <li class="list-group-item pointer">Anniversaire de moi</li>
-            <li class="list-group-item pointer">Rendez-vous Bière</li>
-            <li class="list-group-item pointer">Repas de famille</li>
+            <li v-for="event in $parent.myEvents" :key="event.id" class="list-group-item pointer" @click="$parent.centerByCoords(event.coords.lat, event.coords.long)">{{event.title}}</li>
           </ul>
         </div>
       </div>
@@ -103,7 +101,6 @@
 
 <script>
 export default {
-  props: ["events"],
   data() {
     return {
       navClose: false,

@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-content-center">
     <div id="mapContainer"></div>
-    <NavComponent v-if="events" :events="events"/>
+    <NavComponent/>
     <div class="searchBar mt-2" style="min-width: 200px; width: 40%">
       <div class="input-group">
         <input
@@ -50,6 +50,7 @@
           :descr="event.description"
           :coords="event.coords"
           :date="event.date"
+          :owner="event.owner.username"
         />
       </div>
     </div>
@@ -190,7 +191,7 @@ export default {
     async setEventMarker() {
       if (this.idEvent) {
         axios
-          .get(this.$apiUrl + "/event/" + this.idEvent)
+          .get(this.$apiUrl + "/event/" + this.idEvent + "?embedOwner=true")
           .then((response) => {
             const event = response.data;
             this.event = event;
@@ -213,7 +214,7 @@ export default {
       if (this.$store.state.user) {
         try {
 
-          const response = await axios.get(this.$apiUrl + "/user/" + this.$store.state.user.id + '/joined-event', {headers: { authorization: this.$store.state.user.token } })
+          const response = await axios.get(this.$apiUrl + "/user/" + this.$store.state.user.id + '/joined-event?embedOwner=true', {headers: { authorization: this.$store.state.user.token } })
           response.data.events.forEach(event => {
               const marker = L.marker([event.coords.lat, event.coords.long]).addTo(this.map)
               .bindPopup(`<h4 class="text-center">${event.title}</h4>
@@ -225,6 +226,30 @@ export default {
                 this.event = event
               })
             this.events.push(event)
+            });
+
+        } catch (error){
+          this.$toast.error(
+            "Veuillez vous reconnecter",
+            { position: "bottom" }
+          );
+        }
+
+        try {
+
+          const response = await axios.get(this.$apiUrl + "/user/" + this.$store.state.user.id + '/self-event?embedOwner=true', {headers: { authorization: this.$store.state.user.token } })
+          response.data.events.forEach(event => {
+              const marker = L.marker([event.coords.lat, event.coords.long]).addTo(this.map)
+              .bindPopup(`<h4 class="text-center">${event.title}</h4>
+                <p class="text-center fs-6">${event.coords.address}</p>
+                <div class="d-flex justify-content-center">
+                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#eventModal">voir plus</button>
+                </div>`);
+              marker.addEventListener('click', () => {
+                event.owner = {username: "Moi"}
+                this.event = event
+              })
+            this.myEvents.push(event)
             });
 
         } catch (error){
@@ -272,10 +297,6 @@ export default {
   },
 
   computed: {
-
-    ...mapState({
-    // ...
-  }),
 
     /**
      * retourne me parametre id

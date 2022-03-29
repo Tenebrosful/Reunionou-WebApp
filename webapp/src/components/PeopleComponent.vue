@@ -46,10 +46,12 @@ export default {
      * @return none
      */
     getUsersEvent() {
+
       axios
         .get(this.$apiUrl + "/event/" + this.id + "/participants")
         .then((response) => {
           const people = response.data;
+          this.$store.commit("deleteUserEvent")
           people.participants.forEach(participant => {
             this.$store.commit("addUserEvent", { username: participant.username, comeToEvent: participant.comeToEvent})
           });

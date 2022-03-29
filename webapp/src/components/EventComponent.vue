@@ -1,6 +1,7 @@
 <template>
-  <div id="modal-content" class="modal-content" style="overflow:hidden;">
+  <div id="modal-content" class="modal-content" style="overflow: hidden">
     <div class="modal-header">
+      <p class="fst-italic float-start">Créateur de l'évènement: <b>{{owner}}</b></p>
       <button
         type="button"
         class="btn-close"
@@ -9,20 +10,36 @@
       ></button>
     </div>
     <div class="modal-body">
-      <h3 class="modal-title text-danger mb-2" id="exampleModalLabel" style="filter: brightness(1.75);">
+      <h3
+        class="modal-title text-danger mb-2"
+        id="exampleModalLabel"
+        style="filter: brightness(1.75)"
+      >
         {{ title }}
       </h3>
-      <h6 class="text-white">Le {{new Date(date).toLocaleString()}}</h6>
-      <p class="fs-6 text-white font-weight-bold font-italic">adresse: {{ coords.address }}</p>
+      <h6 class="text-white">Le {{ new Date(date).toLocaleString() }}</h6>
+      <p class="fs-6 text-white font-weight-bold font-italic">
+        adresse: {{ coords.address }}
+      </p>
       <p class="text-white">{{ descr }}</p>
-      <div v-if="!$store.state.user" class="col-3 mb-3" style="margin:0 auto;">
-        <input type="text" class="form-control bg-white" id="UsernameInput"  v-model="username" placeholder="J'écris mon nom et prénom">
+      <div v-if="!$store.state.user" class="col-3 mb-3" style="margin: 0 auto">
+        <input
+          type="text"
+          class="form-control bg-white text-black"
+          id="UsernameInput"
+          v-model="username"
+          placeholder="J'écris mon nom et prénom"
+        />
       </div>
       <div class="d-flex justify-content-center">
-        <button type="button" class="btn btn-success me-5">Je viens</button>
-        <button type="button" class="btn btn-danger">Je ne viens pas</button>
+        <button type="button" class="btn btn-success me-5" @click="participe(true)">Je viens</button>
+        <button type="button" class="btn btn-danger" @click="participe(false)">Je ne viens pas</button>
       </div>
-      <ul class="nav nav-pills nav-justified mb-3 mt-5" id="pills-tab" role="tablist">
+      <ul
+        class="nav nav-pills nav-justified mb-3 mt-5"
+        id="pills-tab"
+        role="tablist"
+      >
         <li class="nav-item" role="people">
           <button
             class="nav-link active"
@@ -48,7 +65,7 @@
             role="tab"
             aria-controls="pills-comments"
             aria-selected="false"
-            @click='scrollComments()'
+            @click="scrollComments()"
           >
             Commentaire
             <i class="las la-comments la-lg"></i>
@@ -70,24 +87,23 @@
           </button>
         </li>
       </ul>
-      <div class="tab-content" id="pills-tabContent" style="height:100%;">
+      <div class="tab-content" id="pills-tabContent" style="height: 100%">
         <div
           class="tab-pane fade show active"
           id="pills-people"
           role="tabpanel"
           aria-labelledby="pills-people-tab"
         >
-          <PeopleComponent :id='id'/>
-
+          <PeopleComponent :id="id" />
         </div>
         <div
           class="tab-pane fade"
           id="pills-comments"
           role="tabpanel"
           aria-labelledby="pills-comments-tab"
-          style="overflow-y:auto;"
+          style="overflow-y: auto"
         >
-          <CommentsComponent :id='id'/>
+          <CommentsComponent :id="id" />
         </div>
         <div
           class="tab-pane fade"
@@ -95,7 +111,7 @@
           role="tabpanel"
           aria-labelledby="pills-info-tab"
         >
-          <InformationComponent :coords="coords" :date="date"/> 
+          <InformationComponent :coords="coords" :date="date" />
         </div>
       </div>
     </div>
@@ -111,8 +127,9 @@
 import PeopleComponent from './PeopleComponent.vue'
 import CommentsComponent from './CommentsComponent.vue'
 import InformationComponent from './InformationComponent.vue'
+import axios from 'axios'
 export default {
-  props: ["id", "title", "descr", "coords", "date"],
+  props: ["id", "title", "descr", "coords", "date", "owner"],
   components: { PeopleComponent, CommentsComponent, InformationComponent},
   data() {
     return {
@@ -140,65 +157,84 @@ export default {
      * @return none
      */
     participe(come){
-      const fields = {}
 
-      if (this.username) {
+      if (this.$store.state.user) {
 
-        fields.username = this.username
-
-      } else {
-
-        if (this.$store.state.user) {
-          fields.username = this.$store.state.user.username
-          fields.id = this.$store.state.user.id
-        }
-
-      }
-
-       axios
-          .post(this.$apiUrl + "/event/" + this.idEvent + "join-event", {
-            username: fields.username,
-            id: fields?.id
-          } , {headers: { authorization: this.$store.state.user.token } })
+        axios
+          .post(this.$apiUrl + "/event/" + this.id + "/join-event/auth", { comeToEvent: come }, {headers: { authorization: this.$store.state.user.token } })
           .then(() => {
 
             this.$toast.success("Votre réponse a été enregistré", {
               position: "bottom",
             });
 
-            this.$store.commit("addUserEvent", {username: fields.username, comeToEvent: come})
+            this.$store.commit("addUserEvent", {username: this.$store.state.user.username, comeToEvent: come})
           })
+          .catch((error) => {
+            console.log(error);
+            this.$toast.error("Votre réponse n'a pas été enregistré. Erreur: " + error, {
+              position: "bottom",
+            });
+          })
+
+        } else {
+
+          if (this.username) {
+            axios
+          .post(this.$apiUrl + "/event/" + this.id + "/join-event", {
+            username: this.username,
+            comeToEvent: come
+          } )
+          .then(() => {
+
+            this.$toast.success("Votre réponse a été enregistré", {
+              position: "bottom",
+            })
+
+            this.$store.commit("addUserEvent", {username: this.username, comeToEvent: come})
+          })
+          .catch((error) => {
+            this.$toast.error("Votre réponse n'a pas été enregistré. Erreur: " + error, {
+              position: "bottom",
+            });
+          })
+
+          } else {
+            this.$toast.error("Vous devez entrer un nom", {
+              position: "bottom"})
+          }
+        }
     }
   }
 };
 </script>
 
 <style scoped>
-
-  #modal-content, .modal-content{
-    width: 80vw; 
-    max-height: 800px;
-  }
-
-  .modal-body{
-    overflow: auto;
-  }
-
-  .nav-pills .nav-link{
-    width: 100%;
-  }
-
-.itemAutoCompleteAddress:hover{
-  cursor: pointer;
-  color:rgb(26, 103, 192);
+#modal-content,
+.modal-content {
+  width: 80vw;
+  max-height: 800px;
 }
 
-@media screen  and (max-width: 638px){
+.modal-body {
+  overflow: auto;
+}
 
-  #modal-content, .modal-content{
+.nav-pills .nav-link {
+  width: 100%;
+}
+
+.itemAutoCompleteAddress:hover {
+  cursor: pointer;
+  color: rgb(26, 103, 192);
+}
+
+@media screen and (max-width: 638px) {
+  #modal-content,
+  .modal-content {
     width: 100vw;
     height: 100%;
     max-height: 100%;
   }
-} 
+}
 </style>

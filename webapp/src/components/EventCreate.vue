@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="$store.state.user">
     <div class="card col-10 p-5 mt-5" style="margin: 0 auto">
       <h2 class="mb-3 text-white">Créer un évènement</h2>
       <form>
@@ -8,7 +8,27 @@
             >Titre</label
           >
           <div class="col-sm-8">
-            <input type="text" class="form-control" id="title" />
+            <input
+              type="text"
+              class="form-control"
+              id="title"
+              v-model="title"
+            />
+            <p class="error text-danger">{{ errorTitle }}</p>
+          </div>
+        </div>
+        <div class="form-group row mt-3">
+          <label for="date" class="col-sm-4 col-form-label text-white"
+            >Date</label
+          >
+          <div class="col-sm-8">
+            <input
+              type="datetime-local"
+              class="form-control"
+              id="date"
+              v-model="date"
+            />
+            <p class="error text-danger">{{ errorDate }}</p>
           </div>
         </div>
         <div class="form-group row mt-3">
@@ -53,6 +73,7 @@
                 </li>
               </ul>
             </div>
+            <p class="error text-danger">{{ errorAddress }}</p>
           </div>
         </div>
         <div class="form-group row mt-3">
@@ -60,10 +81,22 @@
             >Description</label
           >
           <div class="col-sm-8">
-            <textarea class="form-control" id="description" rows="3"></textarea>
+            <textarea
+              class="form-control"
+              id="description"
+              rows="3"
+              v-model="description"
+            ></textarea>
+            <p class="error text-danger">{{ errorDescription }}</p>
           </div>
         </div>
-        <button type="button" class="btn btn-primary mt-5">Valider</button>
+        <button
+          type="button"
+          class="btn btn-primary mt-5"
+          @click="submitEvent()"
+        >
+          Valider
+        </button>
         <br />
         <router-link class="float-end mt-5" to="/"
           >Retour à la carte</router-link
@@ -85,6 +118,12 @@
       ></i>
     </div>
   </div>
+  <div v-else>
+    <h1 class="text-white mt-5">
+      Vous devez être connecté pour créer un évènement
+    </h1>
+    <router-link class="mt-5" to="/">Retour à la carte</router-link>
+  </div>
 </template>
 
 <script>
@@ -93,6 +132,12 @@ import axios from "axios";
 export default {
   data() {
     return {
+      title: "",
+      errorTitle: "",
+      date: "",
+      errorDate: "",
+      description: "",
+      errorDescription: "",
       map: null,
       myPosition: [48.692054, 6.184417],
       markerPosition: null,
@@ -102,23 +147,94 @@ export default {
       urlDataGouv: "https://api-adresse.data.gouv.fr/search/?q=",
       apiKey: "652ac131889244eda7dfaaf0728d63ae",
       address: "",
+      errorAddress: "",
       autocompleteAddress: null,
     };
   },
   mounted() {
-    this.map = L.map("map").setView(this.myPosition, 16);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(this.map);
-    //use a mix of renderers
-    let customPane = this.map.createPane("customPane");
+    if (this.$store.state.user) {
+      this.map = L.map("map").setView(this.myPosition, 16);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(this.map);
+      //use a mix of renderers
+      let customPane = this.map.createPane("customPane");
 
-    this.map.addEventListener("click", (e) => {
-      this.setMarkerPosition(e);
-    });
+      this.map.addEventListener("click", (e) => {
+        this.setMarkerPosition(e);
+      });
+    }
   },
   methods: {
+    /**
+     * Enregistre un évènement
+     * @return none
+     */
+
+    submitEvent() {
+      if (!this.validateForm()) return;
+
+      axios
+        .post(
+          this.$apiUrl + "/event",
+          {
+            title: this.title,
+            date: this.date,
+            description: this.description,
+            coords: {
+              address: this.address,
+              lat: this.markerPosition[0],
+              long: this.markerPosition[1],
+            },
+          },
+          { headers: { authorization: this.$store.state.user.token } }
+        )
+        .then((response) => {
+          this.$toast.success("L'évènement a été créé", {
+            position: "bottom",
+          });
+          window.location.href = "/"
+        })
+        .catch((error) => {
+          console.log(error);
+          this.$toast.error("L'évènement n'a pas été créé. Erreur: " + error, {
+            position: "bottom",
+          });
+        });
+    },
+
+    /**
+     * Valide les données du formulaire
+     * @return boolean
+     */
+    validateForm() {
+      let error = false;
+
+      if (!this.title) {
+        this.errorTitle = "Veuillez entrer un titre !";
+        error = true;
+      }
+
+      if (!this.date) {
+        this.errorDate = "Veuillez entrer une date !";
+        error = true;
+      }
+
+      if (!this.address) {
+        this.errorAddress =
+          "Veuillez entrer une adresse ou choisir un point sur la carte !";
+        error = true;
+      }
+
+      if (!this.description) {
+        this.errorDescription = "Veuillez entrer une description !";
+        error = true;
+      }
+
+      return !error;
+    },
+
     /**
      * Lors d'un clique sur la carte
      * Modifie la position de l'évènement
@@ -177,6 +293,7 @@ export default {
             data.country;
         })
         .catch((error) => {
+          console.log(error);
           this.address = "adresse inconnue";
         });
     },
@@ -247,7 +364,7 @@ export default {
   },
 
   created() {
-    this.getUserPosition();
+    if (this.$store.state.user) this.getUserPosition();
   },
 };
 </script>

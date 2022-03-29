@@ -42,10 +42,10 @@ const router = new createRouter({
     routes
   })
 
-axios.defaults.headers.post['Application'] = 'webApp'
+/*axios.defaults.headers.post['Application'] = 'webApp'
 axios.defaults.headers.get['Application'] = 'webApp'
 axios.defaults.headers.delete['Application'] = 'webApp'
-axios.defaults.headers.put['Application'] = 'webApp'
+axios.defaults.headers.put['Application'] = 'webApp'*/
 
  const app = createApp(App)
 
