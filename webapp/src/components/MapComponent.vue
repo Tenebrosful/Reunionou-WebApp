@@ -112,9 +112,10 @@ export default {
   components: { EventComponent, NavComponent},
 
   created () {
-
+    
+    const vuex = JSON.parse(window.localStorage.vuex)
     // Vide les données du localStorage si la date d'expiration est dépassée 
-    if(window.localStorage.vuex && new Date(window.localStorage.vuex.expirationDate) < new Date()){
+    if(vuex && new Date(vuex.expirationDate) < new Date()){
       window.localStorage.vuex = null
     }
 

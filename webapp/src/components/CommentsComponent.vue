@@ -13,11 +13,43 @@
       >
         <div class="col-inside-lg decor-default">
           <div class="chat-body" id="chatBody">
-            <div
-              v-for="comment in $store.state.commentsEvent.comments"
-              :key="comment.id"
-            >
-              <div class="answer left">
+            <div v-for="(comment, index) in comments" :key="comment.id">
+              <div
+                v-if="
+                  $store.state.user &&
+                  $store.state.user.id === comment.author.id
+                "
+                class="answer right"
+              >
+                <div class="avatar">
+                  <img
+                    src="https://bootdey.com/img/Content/avatar/avatar2.png"
+                    alt="User name"
+                  />
+                  <div class="status offline"></div>
+                </div>
+                <div class="name">Moi</div>
+                <div></div>
+                <div class="text">
+                  <div class="relative inline-block mt-10">
+                    <i class="las la-ellipsis-h pointer" @click="displaySettings(index)"></i>
+
+                    <!-- Dropdown menu -->
+                    <div :id="'dropdownComment' + index" class="bg-white" style="position:absolute; right:10px; top:35px; display:none;">
+                      <a
+                        href="#"
+                        @click="deleteComment(comment.id)"
+                      >
+                        <span class="fs-6 mx-1"><i class="las la-trash-alt text-danger"></i> supprimer </span>
+                      </a>
+                    </div>
+                  </div>
+                  {{ comment.message }}
+                </div>
+                <div class="time">{{ dateFormat(comment.createdAt) }}</div>
+              </div>
+
+              <div v-else class="answer left">
                 <div class="avatar">
                   <img
                     src="https://bootdey.com/img/Content/avatar/avatar1.png"
@@ -33,28 +65,13 @@
               </div>
             </div>
 
-            <div class="answer right">
-              <div class="avatar">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                  alt="User name"
-                />
-                <div class="status offline"></div>
-              </div>
-              <div class="name">Alexander Herthic</div>
-              <div class="text">
-                Lorem ipsum dolor amet, consectetur adipisicing elit Lorem ipsum
-                dolor amet, consectetur adipisicing elit Lorem ipsum dolor amet,
-                consectetur adiping elit
-              </div>
-              <div class="time">5 min ago</div>
-            </div>
-
             <div class="answer-add">
               <input
                 type="text"
                 class="form-control"
                 placeholder="Write a message"
+                v-model="message"
+                @keyup.enter="sendComment()"
               />
               <span class="answer-btn answer-btn-1"></span>
               <span class="answer-btn answer-btn-2"></span>
@@ -73,6 +90,8 @@ export default {
     return {
       loading: true,
       error: false,
+      comments: [],
+      message: "",
     };
   },
 
@@ -89,8 +108,8 @@ export default {
       axios
         .get(this.$apiUrl + "/event/" + this.id + "/comments?embedAuthor=true")
         .then((response) => {
-          const comments = response.data;
-          this.$store.state.commentsEvent = comments;
+          const comments = response.data.comments;
+          this.comments = comments;
         })
         .catch((error) => {
           this.$toast.error(
@@ -98,7 +117,7 @@ export default {
               error,
             {
               position: "bottom",
-              timeout: 10000
+              timeout: 10000,
             }
           );
           console.log(error);
@@ -110,13 +129,76 @@ export default {
     },
 
     /**
+     * Enregistre un commentaire
+     * @return none
+     */
+    sendComment() {
+      if (this.message) {
+        axios
+          .post(
+            this.$apiUrl + "/event/" + this.id + "/comment",
+            { message: this.message },
+            { headers: { authorization: this.$store.state.user.token } }
+          )
+          .then((response) => {
+            this.message = "";
+            response.data.author = {
+              username: this.$store.state.user.username,
+              id: this.$store.state.user.id,
+            };
+            this.comments.push(response.data);
+          })
+          .catch((error) => {
+            console.log(error);
+            this.$toast.error(
+              "Votre commentaire n'a pas été enregistré. Erreur: " + error,
+              {
+                position: "bottom",
+              }
+            );
+          });
+      }
+    },
+
+    displaySettings(index){
+      if(document.getElementById('dropdownComment' + index).style.display === "none")
+      document.getElementById('dropdownComment' + index).style.display = "block"
+      else document.getElementById('dropdownComment' + index).style.display = "none"
+    },
+
+    /**
+     * Supprime le commentaire
+     * @params id (id du commentaire)
+     * @return none
+     */
+    deleteComment(id){
+      axios
+          .delete(
+            this.$apiUrl + "/comment/" + id, { headers: { authorization: this.$store.state.user.token } }
+          )
+          .then((response) => {
+            const index = this.comments.findIndex(comment => comment.id === id)
+            this.comments.splice(index, 1);
+          })
+          .catch((error) => {
+            console.log(error);
+            this.$toast.error(
+              "Votre commentaire n'a pas été supprimé. Erreur: " + error,
+              {
+                position: "bottom",
+              }
+            );
+          });
+    },
+
+    /**
      * Formate la date en format fr
      * @params date (date)
      * @return date formatée
      */
-    dateFormat(date){
-      return new Date(date).toLocaleString()
-    }
+    dateFormat(date) {
+      return new Date(date).toLocaleString();
+    },
   },
 };
 </script>
