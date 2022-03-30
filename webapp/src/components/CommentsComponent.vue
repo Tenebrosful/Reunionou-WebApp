@@ -23,8 +23,9 @@
               >
                 <div class="avatar">
                   <img
-                    src="https://bootdey.com/img/Content/avatar/avatar2.png"
+                    :src="comment.author.profile_image_url"
                     alt="User name"
+                    style="width:100%"
                   />
                   <div class="status offline"></div>
                 </div>
