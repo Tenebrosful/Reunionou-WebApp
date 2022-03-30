@@ -42,6 +42,10 @@ const store = new Vuex.Store({
 
     deleteUserEvent (state) {
       state.usersEvent = []
+    },
+
+    changeUser (state, userData){
+      state.user.username = userData.username
     }
 
   },

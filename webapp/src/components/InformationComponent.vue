@@ -5,8 +5,8 @@
         <p>{{ errorWeather }}</p>
       </div>
       <div v-else>
-          <div v-if="weatherEvent">
-              <p>Température moyenne: {{moyenneTemps}}</p>
+          <div v-if="weatherEvent" class="text-white">
+              <p>Température moyenne: {{moyenneTemps}}°C</p>
           </div>
           <div v-else>
             <p>Il n'y a pas de prévision météo pour ce jour là</p> 

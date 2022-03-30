@@ -32,19 +32,37 @@
                 <div></div>
                 <div class="text">
                   <div class="relative inline-block mt-10">
-                    <i class="las la-ellipsis-h pointer" @click="displaySettings(index)"></i>
+                    <i
+                      class="las la-ellipsis-h pointer"
+                      @click="displaySettings(index)"
+                    ></i>
 
                     <!-- Dropdown menu -->
-                    <div :id="'dropdownComment' + index" class="bg-white" style="position:absolute; right:10px; top:35px; display:none;">
-                      <a
-                        href="#"
-                        @click="deleteComment(comment.id)"
-                      >
-                        <span class="fs-6 mx-1"><i class="las la-trash-alt text-danger"></i> supprimer </span>
+                    <div
+                      :id="'dropdownComment' + index"
+                      class="bg-white"
+                      style="
+                        position: absolute;
+                        right: 10px;
+                        top: 35px;
+                        display: none;
+                      "
+                    >
+                      <a href="#" @click="deleteComment(comment.id)">
+                        <span class="fs-6 mx-1"
+                          ><i class="las la-trash-alt text-danger"></i>
+                          supprimer
+                        </span>
                       </a>
                     </div>
                   </div>
                   {{ comment.message }}
+                  <div v-if="comment.media && video(comment.media)">
+                    <video :src="comment.media"></video>
+                  </div>
+                  <div v-if="comment.media && image(comment.media)">
+                    <a :href="comment.media" target="_bank"><img :src="comment.media" style="width:100%" /></a>
+                  </div>
                 </div>
                 <div class="time">{{ dateFormat(comment.createdAt) }}</div>
               </div>
@@ -60,6 +78,12 @@
                 <div class="name">{{ comment.author.username }}</div>
                 <div class="text">
                   {{ comment.message }}
+                  <div v-if="comment.media && video(comment.media)">
+                    <video :src="comment.media"></video>
+                  </div>
+                  <div v-if="comment.media && image(comment.media)">
+                    <a :href="comment.media" target="_bank"><img :src="comment.media" style="width:100%" /></a>
+                  </div>
                 </div>
                 <div class="time">{{ dateFormat(comment.createdAt) }}</div>
               </div>
@@ -134,10 +158,11 @@ export default {
      */
     sendComment() {
       if (this.message) {
+        const urlImg = this.detectURLs(this.message);
         axios
           .post(
-            this.$apiUrl + "/event/" + this.id + "/comment",
-            { message: this.message },
+            this.$apiUrl + "/event/" + this.id + "/comments",
+            { message: this.message, media: urlImg[0] },
             { headers: { authorization: this.$store.state.user.token } }
           )
           .then((response) => {
@@ -160,10 +185,16 @@ export default {
       }
     },
 
-    displaySettings(index){
-      if(document.getElementById('dropdownComment' + index).style.display === "none")
-      document.getElementById('dropdownComment' + index).style.display = "block"
-      else document.getElementById('dropdownComment' + index).style.display = "none"
+    displaySettings(index) {
+      if (
+        document.getElementById("dropdownComment" + index).style.display ===
+        "none"
+      )
+        document.getElementById("dropdownComment" + index).style.display =
+          "block";
+      else
+        document.getElementById("dropdownComment" + index).style.display =
+          "none";
     },
 
     /**
@@ -171,24 +202,24 @@ export default {
      * @params id (id du commentaire)
      * @return none
      */
-    deleteComment(id){
+    deleteComment(id) {
       axios
-          .delete(
-            this.$apiUrl + "/comment/" + id, { headers: { authorization: this.$store.state.user.token } }
-          )
-          .then((response) => {
-            const index = this.comments.findIndex(comment => comment.id === id)
-            this.comments.splice(index, 1);
-          })
-          .catch((error) => {
-            console.log(error);
-            this.$toast.error(
-              "Votre commentaire n'a pas été supprimé. Erreur: " + error,
-              {
-                position: "bottom",
-              }
-            );
-          });
+        .delete(this.$apiUrl + "/comment/" + id, {
+          headers: { authorization: this.$store.state.user.token },
+        })
+        .then((response) => {
+          const index = this.comments.findIndex((comment) => comment.id === id);
+          this.comments.splice(index, 1);
+        })
+        .catch((error) => {
+          console.log(error);
+          this.$toast.error(
+            "Votre commentaire n'a pas été supprimé. Erreur: " + error,
+            {
+              position: "bottom",
+            }
+          );
+        });
     },
 
     /**
@@ -199,6 +230,51 @@ export default {
     dateFormat(date) {
       return new Date(date).toLocaleString();
     },
+
+    /**
+     * Cherche un media dans un string
+     * @params text (string)
+     * @return link
+     */
+    detectURLs(text) {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.match(urlRegex);
+    },
+
+    video(media){
+      const video = ["mp4", "mkv", "avi"]
+      const extension = media.split('.').pop();
+      if(video.includes(extension)){
+          return true
+        } else return false
+    },
+
+    image(media){
+      const image = ["jpg", "jpeg", "png", "gif"]
+      const extension = media.split('.').pop();
+      if(image.includes(extension)){
+          return true
+        } else return false
+    },
+
+    /**
+     * Retourne une balise correspondant au média
+     * @param media (string)
+     * @return element html
+     */
+    addMedia(media){
+      if(media){
+        const image = ["jpg", "jpeg", "png", "gif"]
+        const video = ["mp4", "mkv", "avi"]
+        const extension = media.split('.').pop();
+        if(image.includes(extension)){
+          return `<img src=${media} alt=""/>`
+        } else if (video.includes(extension)){
+          return `<video src=${media}></video>`
+        } else return
+      } else return
+
+    }
   },
 };
 </script>

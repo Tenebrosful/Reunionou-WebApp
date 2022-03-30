@@ -1,7 +1,9 @@
 <template>
   <div id="modal-content" class="modal-content" style="overflow: hidden">
     <div class="modal-header">
-      <p class="fst-italic float-start">Créateur de l'évènement: <b>{{owner}}</b></p>
+      <p class="fst-italic float-start">
+        Créateur de l'évènement: <b>{{ owner }}</b>
+      </p>
       <button
         type="button"
         class="btn-close"
@@ -10,11 +12,7 @@
       ></button>
     </div>
     <div class="modal-body">
-      <h3
-        class="modal-title text-danger mb-2"
-        id="exampleModalLabel"
-        style="filter: brightness(1.75)"
-      >
+      <h3 class="modal-title text-danger mb-2" style="filter: brightness(1.75)">
         {{ title }}
       </h3>
       <h6 class="text-white">Le {{ new Date(date).toLocaleString() }}</h6>
@@ -32,8 +30,48 @@
         />
       </div>
       <div class="d-flex justify-content-center">
-        <button type="button" class="btn btn-success me-5" @click="participe(true)">Je viens</button>
-        <button type="button" class="btn btn-danger" @click="participe(false)">Je ne viens pas</button>
+        <button
+          type="button"
+          class="btn btn-success me-5"
+          @click="participe(true)"
+        >
+          Je viens
+        </button>
+        <button type="button" class="btn btn-danger" @click="participe(false)">
+          Je ne viens pas
+        </button>
+      </div>
+      <div class="form-group row mt-3">
+        <div class="col-sm-4" style="margin: 0 auto">
+          <div class="input-group mb-3">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Rechercher une personne"
+              aria-label="address"
+              style="height: 50px"
+              aria-describedby="basic-addon1"
+              v-model="userInput"
+              @keyup="getAutoUser()"
+              @blur="setTimeout(() => (autocompleteUser = null), 1000)"
+            />
+          </div>
+          <div v-if="autocompleteUser" class="bg-white autocomplete">
+            <ul class="list-group mt-3 pt-3">
+              <li v-for="autoUser in autocompleteUser" :key="autoUser.id">
+                {{ autoUser.username }}
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm ms-5"
+                  @click="addParticipant(autoUser.id, autoUser.username)"
+                >
+                  Inviter
+                </button>
+              </li>
+            </ul>
+          </div>
+          <p class="error text-danger">{{ errorAddress }}</p>
+        </div>
       </div>
       <ul
         class="nav nav-pills nav-justified mb-3 mt-5"
@@ -124,31 +162,36 @@
 </template>
 
 <script>
-import PeopleComponent from './PeopleComponent.vue'
-import CommentsComponent from './CommentsComponent.vue'
-import InformationComponent from './InformationComponent.vue'
-import axios from 'axios'
+import PeopleComponent from "./PeopleComponent.vue";
+import CommentsComponent from "./CommentsComponent.vue";
+import InformationComponent from "./InformationComponent.vue";
+import axios from "axios";
 export default {
   props: ["id", "title", "descr", "coords", "date", "owner"],
-  components: { PeopleComponent, CommentsComponent, InformationComponent},
+  components: { PeopleComponent, CommentsComponent, InformationComponent },
   data() {
     return {
-      username: ''
+      username: "",
+      userInput: "",
+      autocompleteUser: null,
     };
   },
   mounted() {
-    document.getElementById('pills-comments').scrollTo(0, 1000)
+    document.getElementById("pills-comments").scrollTo(0, 1000);
   },
 
   methods: {
-
     /**
      * Scroll tout en bas de la section commentaire
      * @return none
      */
-    scrollComments(){
-
-      setTimeout(() => document.getElementById("chat").scrollTop = document.getElementById("chatBody").offsetHeight , 300);
+    scrollComments() {
+      setTimeout(
+        () =>
+          (document.getElementById("chat").scrollTop =
+            document.getElementById("chatBody").offsetHeight),
+        300
+      );
     },
 
     /**
@@ -156,56 +199,117 @@ export default {
      * @param come (bool) indique si le participant vient ou non
      * @return none
      */
-    participe(come){
-
+    participe(come) {
       if (this.$store.state.user) {
-
         axios
-          .post(this.$apiUrl + "/event/" + this.id + "/join-event/auth", { comeToEvent: come }, {headers: { authorization: this.$store.state.user.token } })
+          .post(
+            this.$apiUrl + "/event/" + this.id + "/join-event/auth",
+            { comeToEvent: come },
+            { headers: { authorization: this.$store.state.user.token } }
+          )
           .then(() => {
-
             this.$toast.success("Votre réponse a été enregistré", {
               position: "bottom",
             });
 
-            this.$store.commit("addUserEvent", {username: this.$store.state.user.username, comeToEvent: come})
+            this.$store.commit("addUserEvent", {
+              username: this.$store.state.user.username,
+              comeToEvent: come,
+            });
           })
           .catch((error) => {
             console.log(error);
-            this.$toast.error("Votre réponse n'a pas été enregistré. Erreur: " + error, {
-              position: "bottom",
-            });
-          })
-
-        } else {
-
-          if (this.username) {
-            axios
-          .post(this.$apiUrl + "/event/" + this.id + "/join-event", {
-            username: this.username,
-            comeToEvent: come
-          } )
-          .then(() => {
-
-            this.$toast.success("Votre réponse a été enregistré", {
-              position: "bottom",
+            this.$toast.error(
+              "Votre réponse n'a pas été enregistré. Erreur: " + error,
+              {
+                position: "bottom",
+              }
+            );
+          });
+      } else {
+        if (this.username) {
+          axios
+            .post(this.$apiUrl + "/event/" + this.id + "/join-event", {
+              username: this.username,
+              comeToEvent: come,
             })
+            .then(() => {
+              this.$toast.success("Votre réponse a été enregistré", {
+                position: "bottom",
+              });
 
-            this.$store.commit("addUserEvent", {username: this.username, comeToEvent: come})
-          })
-          .catch((error) => {
-            this.$toast.error("Votre réponse n'a pas été enregistré. Erreur: " + error, {
-              position: "bottom",
+              this.$store.commit("addUserEvent", {
+                username: this.username,
+                comeToEvent: come,
+              });
+            })
+            .catch((error) => {
+              this.$toast.error(
+                "Votre réponse n'a pas été enregistré. Erreur: " + error,
+                {
+                  position: "bottom",
+                }
+              );
             });
-          })
-
-          } else {
-            this.$toast.error("Vous devez entrer un nom", {
-              position: "bottom"})
-          }
+        } else {
+          this.$toast.error("Vous devez entrer un nom", {
+            position: "bottom",
+          });
         }
-    }
-  }
+      }
+    },
+
+    /**
+     * Récupère une liste d'utilisateur ayant la data 'userInput' dans la requête
+     * @return none
+     */
+    async getAutoUser() {
+      if (this.userInput) {
+        if (this.userInput.length > 3) {
+          const request = await axios.get(
+            this.$apiUrl + "/user/autocomplete?q=" + this.userInput
+          );
+          this.autocompleteUser = request.data.users;
+        }
+      } else {
+        this.autocompleteUser = null;
+      }
+    },
+
+    /**
+     * ajouter un participant
+     * @param {user_id}
+     * @return none
+     */
+    addParticipant(user_id, username) {
+      axios
+        .post(
+          this.$apiUrl + "/event/" + this.id + "/invite-event/" + user_id,
+          {},
+          { headers: { authorization: this.$store.state.user.token } }
+        )
+        .then(() => {
+          this.$toast.success("La personne a bien été enregistré", {
+            position: "bottom",
+          });
+
+          this.$store.commit("addUserEvent", {
+            username,
+            comeToEvent: false,
+          });
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+          this.$toast.error(
+            "La personne n'a pas été enregistré. Erreur: " +
+              error.response.data.message,
+            {
+              position: "bottom",
+            }
+          );
+        });
+    },
+  },
 };
 </script>
 
@@ -213,7 +317,7 @@ export default {
 #modal-content,
 .modal-content {
   width: 80vw;
-  max-height: 800px;
+  max-height: 1100px;
 }
 
 .modal-body {
@@ -222,11 +326,6 @@ export default {
 
 .nav-pills .nav-link {
   width: 100%;
-}
-
-.itemAutoCompleteAddress:hover {
-  cursor: pointer;
-  color: rgb(26, 103, 192);
 }
 
 @media screen and (max-width: 638px) {

@@ -29,12 +29,14 @@ import HomeComponent from './components/HomeComponent.vue'
 import SigninComponent from './components/SigninComponent.vue'
 import SignupComponent from './components/SignupComponent.vue'
 import EventCreate from './components/EventCreate.vue'
+import ProfileComponent from './components/ProfileComponent.vue'
 
 const routes = [
     { path: '/:id?', component: HomeComponent },
     { path: '/connexion', component: SigninComponent},
     { path: '/inscription', component: SignupComponent},
-    { path: '/creationEvenement', component: EventCreate}
+    { path: '/creationEvenement', component: EventCreate},
+    { path: '/profil', component: ProfileComponent}
   ] 
 
 const router = new createRouter({

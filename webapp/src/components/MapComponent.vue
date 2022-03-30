@@ -61,14 +61,15 @@
       style="position: absolute; bottom: 10px; left: 10px; z-index: 10"
     >
       <div class="row col-auto col-lg-4 me-2">
-        <button
+        <router-link
+          to="/profil"
           type="text"
           class="card text-white p-1 col"
           style="height: 100%"
           disabled
         >
           {{ $store.state.user.username }}
-        </button>
+        </router-link>
         <button type="text" class="btn btn-primary col ms-2" @click="signOut()">
           Déconnexion
         </button>
@@ -224,6 +225,9 @@ export default {
                 <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#eventModal">voir plus</button>
                 </div>`);
               marker.addEventListener('click', () => {
+                if(!event.owner){
+                  event.owner = {username: "Inconnu"}
+                }
                 this.event = event
               })
             this.events.push(event)
