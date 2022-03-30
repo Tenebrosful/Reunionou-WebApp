@@ -7,50 +7,46 @@ const vuexLocal = new VuexPersistence({
 })
 
 const store = new Vuex.Store({
-  state: {
-    test: 1,
-    usersEvent: [],
-    commentsEvent: [],
-    user: null,
-    expirationDate:null
-  },
-
   mutations: {
-
-    saveUser(state, user){
-      state.user = user
-    },
-
-    signOut(state){
-      state.user = null
-    },
-
-    setExpirationDate(state){
-      const date = new Date(new Date().setHours(new Date().getHours() + 1))
-      state.expirationDate = date;
-    },
-
-    addUserEvent(state, user){
-      let particip 
-      if(particip = state.usersEvent.find(participant => participant.username === user.username )){
+    addUserEvent(state, user) {
+      let particip = state.usersEvent.find(participant => participant.username === user.username)
+      if (particip) {
         particip.comeToEvent = user.comeToEvent
       } else {
         state.usersEvent.push(user)
       }
-
     },
 
-    deleteUserEvent (state) {
+    changeUser(state, userData) {
+      state.user.username = userData.username
+    },
+
+    deleteUserEvent(state) {
       state.usersEvent = []
     },
 
-    changeUser (state, userData){
-      state.user.username = userData.username
-    }
+    saveUser(state, user) {
+      state.user = user
+    },
+
+    setExpirationDate(state) {
+      const date = new Date(new Date().setHours(new Date().getHours() + 1))
+      state.expirationDate = date;
+    },
+
+    signOut(state) {
+      state.user = null
+    },
 
   },
-
-  plugins: [vuexLocal.plugin]
+  plugins: [vuexLocal.plugin],
+  state: {
+    commentsEvent: [],
+    expirationDate: null,
+    test: 1,
+    user: null,
+    usersEvent: [],
+  },
 })
 
 export default store
