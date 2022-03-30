@@ -2,8 +2,8 @@
   "name": "reunionou-webapp",
   "scripts": {
     "eslint": "npx eslint . --ext .js,.ts --fix",
-    "stylelint-css": "npx stylelint **/*.css --fix",
-    "stylelint-scss": "npx stylelint **/*.scss --fix"
+    "stylelint-css": "npx stylelint **/*.css --allow-empty-input --fix",
+    "stylelint-scss": "npx stylelint **/*.scss --allow-empty-input --fix"
   },
   "devDependencies": {
     "@types/node": "^17.0.21",
