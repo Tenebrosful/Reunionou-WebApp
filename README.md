@@ -1,16 +1,12 @@
-# reunionou
+# Projet Reuninou (WebApp)
 
-This template should help get you started developing with Vue 3 in Vite.
+*Atelier du 21/03/2022 au 30/03/2022*
 
-## Recommended IDE Setup
+*[Lire le README-GLOBAL du projet](./README-GLOBAL.md)*
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.vscode-typescript-vue-plugin).
+## Installation
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
+Dans le dossier `/webapp`
 
 ```sh
 npm install
@@ -18,11 +14,15 @@ npm install
 
 ### Compile and Hot-Reload for Development
 
+Dans le dossier `/webapp`
+
 ```sh
 npm run dev
 ```
 
 ### Compile and Minify for Production
+
+Dans le dossier `/webapp`
 
 ```sh
 npm run build
