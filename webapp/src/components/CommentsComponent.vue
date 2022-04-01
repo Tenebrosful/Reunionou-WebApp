@@ -159,11 +159,15 @@ export default {
      */
     sendComment() {
       if (this.message) {
-        const urlImg = this.detectURLs(this.message);
+        let urlImg
+        if(this.detectURLs(this.message)){
+          urlImg = (this.detectURLs(this.message))[0];
+        } else urlImg = '';
+  
         axios
           .post(
             this.$apiUrl + "/event/" + this.id + "/comments",
-            { message: this.message, media: urlImg[0] },
+            { message: this.message, media: urlImg },
             { headers: { authorization: this.$store.state.user.token } }
           )
           .then((response) => {
