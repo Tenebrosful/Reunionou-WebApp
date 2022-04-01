@@ -178,12 +178,6 @@ export default {
       //use a mix of renderers
       let customPane = this.map.createPane("customPane");
       customPane.style.zIndex = 399; // put just behind the standard overlay pane which is at 400
-      let marker = L.marker([48.692154, 6.184517]).addTo(this.map)
-        .bindPopup(`<h4 class="text-center">Anniversaire de Clara</h4>
-                <p class="text-center fs-6">6 rue Jeanne d'arc, Nancy 54000</p>
-                <div class="d-flex justify-content-center">
-                <button class="btn btn-primary" type="btn" data-bs-toggle ="modal" data-bs-target="#eventModal">voir plus</button>
-                </div>`);
     },
 
     /**
